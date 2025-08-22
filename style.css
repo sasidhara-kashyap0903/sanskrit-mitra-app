@@ -153,3 +153,8 @@ button:focus-visible {
 button:hover {
   opacity: 0.95;
 }
+
+#google-signin-btn {
+  position: relative; /* z-index only works on positioned elements */
+  z-index: 10;
+}

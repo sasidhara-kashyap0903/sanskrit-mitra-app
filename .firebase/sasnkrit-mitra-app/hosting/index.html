@@ -205,6 +205,7 @@
         .light #tools-menu-dropdown button { color: #4b5563; }
         .light #tools-menu-dropdown button:hover { background-color: #f3f4f6; }
     </style>
+  <script type="module" crossorigin src="/assets/index-mFvUKuQf.js"></script>
 </head>
 <body class="bg-gray-900 text-white transition-colors duration-300">
     <script>
@@ -221,41 +222,6 @@
         const __firebase_config = JSON.stringify(firebaseConfig);
     </script>
     <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, getDocs, writeBatch, updateDoc, query, orderBy, deleteDoc, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-        
-        window.firebase = {
-            initializeApp,
-            getAuth,
-            signInAnonymously,
-            onAuthStateChanged,
-            signInWithCustomToken,
-            signOut,
-            getFirestore,
-            doc,
-            getDoc,
-            setDoc,
-            updateDoc,
-            onSnapshot,
-            collection,
-            addDoc,
-            serverTimestamp,
-            getDocs,
-            writeBatch,
-            query,
-            orderBy,
-            deleteDoc,
-            where,
-            Timestamp,
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        };
-    </script>
 
     <div class="h-screen flex flex-col relative overflow-hidden">
         <!-- Background decorative blobs -->
