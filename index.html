@@ -830,7 +830,9 @@
                         { id: 'common-indeclinables', name: 'Common Indeclinables (अव्ययानि)' },
                         { id: 'simple-verbs', name: 'Simple Verbs (क्रियापदानि)' },
                         { id: 'question-words', name: 'Question Words (प्रश्नवाचकशब्दाः)' },
-                        { id: 'basic-conjunctions', name: 'Basic Conjunctions (समुच्चयबोधकाः)' }
+                        { id: 'basic-conjunctions', name: 'Basic Conjunctions (समुच्चयबोधकाः)' },
+                        { id: 'time-days', name: 'Time, Days, and Seasons (कालः, वासराः, ऋतवः)' },
+                        { id: 'family-relations', name: 'Family Relations (कुटुम्बसम्बन्धाः)' }
                     ]
                 },
                 'sabda-rupa': {
@@ -838,11 +840,14 @@
                     lessons: [
                         { id: 'sabda-intro', name: 'Introduction to Śabda Rūpa' },
                         { id: 'akaranta-pumlinga', name: 'Akārānta Puṃliṅga (-a, masc.)' },
+                        { id: 'akaranta-napumsaka', name: 'Akārānta Napuṃsakaliṅga (-a, neut.)' },
                         { id: 'akaranta-strilinga', name: 'Ākārānta Strīliṅga (-ā, fem.)' },
                         { id: 'ikaranta-pumlinga', name: 'Ikārānta Puṃliṅga (-i, masc.)' },
                         { id: 'ikaranta-strilinga', name: 'Īkārānta Strīliṅga (-ī, fem.)' },
+                        { id: 'ukaranta-pumlinga', name: 'Ukārānta Puṃliṅga (-u, masc.)' },
                         { id: 'ukaranta-napumsaka', name: 'Ukārānta Napuṃsakaliṅga (-u, neut.)' },
                         { id: 'rkaranata-pumlinga', name: 'Ṛkārānta Puṃliṅga (-ṛ, masc.)' },
+                        { id: 'sarvanama-sabda', name: 'Sarvanāma Śabdas (Pronouns)' },
                         { id: 'halanta-sabdas', name: 'Halanta Śabdas (Consonant-ending)' }
                     ]
                 },
@@ -854,7 +859,9 @@
                         { id: 'ganas', name: 'The 10 Gaṇas (Classes of Verbs)' },
                         { id: 'bhu-dhatu', name: 'Conjugating Bhū Dhātu (1P)' },
                         { id: 'gam-dhatu', name: 'Conjugating Gam Dhātu (1P)' },
-                        { id: 'sev-dhatu', name: 'Conjugating Sev Dhātu (1A)' }
+                        { id: 'sev-dhatu', name: 'Conjugating Sev Dhātu (1A)' },
+                        { id: 'as-dhatu', name: 'Conjugating As Dhātu (2P)' },
+                        { id: 'da-dhatu', name: 'Conjugating Dā Dhātu (3P)' }
                     ]
                 },
                 'karaka-vibhakti': {
@@ -1116,7 +1123,9 @@
                         { id: 'bhava-vibhava', name: 'Bhāva, Vibhāva, Anubhāva' },
                         { id: 'dhvani-theory', name: 'Dhvani Theory (Ānandavardhana)' },
                         { id: 'vakrokti', name: 'Vakrokti (Kuntaka)' },
-                        { id: 'kavya-prakasha', name: 'Introduction to Kāvyaprakāśa (Mammaṭa)' }
+                        { id: 'riti-guna-dosha', name: 'Rīti, Guṇa, and Doṣa' },
+                        { id: 'kavya-prakasha', name: 'Introduction to Kāvyaprakāśa (Mammaṭa)' },
+                        { id: 'sahityadarpana', name: 'Introduction to Sāhityadarpaṇa (Viśvanātha)' }
                     ]
                 },
                 'nyaya-vaisheshika': {
@@ -1140,10 +1149,22 @@
                         { id: 'bhavana', name: 'The concept of Bhāvanā' }
                     ]
                 },
+                'sanskrit-composition': {
+                    name: "Sanskrit Composition & Letter Writing",
+                    lessons: [
+                        { id: 'comp-paragraph', name: 'Simple Paragraph Writing (सरल-अनुच्छेद-लेखनम्)' },
+                        { id: 'comp-story', name: 'Story Writing (कथा-लेखनम्)' },
+                        { id: 'comp-essay', name: 'Essay Writing (निबन्ध-लेखनम्)' },
+                        { id: 'comp-dialogue', name: 'Dialogue Writing (संवाद-लेखनम्)' },
+                        { id: 'comp-informal-letter', name: 'Informal Letter Writing (अनौपचारिक-पत्र-लेखनम्)' },
+                        { id: 'comp-formal-letter', name: 'Formal Letter Writing (औपचारिक-पत्र-लेखनम्)' }
+                    ]
+                },
                 'reading-practice-1': {
                     name: "Reading Practice I",
                     lessons: [
                         { id: 'rp1-panchatantra', name: 'Selections from Pañcatantra' },
+                        { id: 'rp1-hitopadesha', name: 'Selections from Hitopadeśa' },
                         { id: 'rp1-subhashita', name: 'Subhāṣita Reading' },
                         { id: 'rp1-simple-stories', name: 'Simple Conversational Stories' }
                     ]
@@ -1153,7 +1174,9 @@
                     lessons: [
                         { id: 'rp2-hitopadesha', name: 'Selections from Hitopadeśa' },
                         { id: 'rp2-raghuvamsha', name: 'Selections from Raghuvaṃśa' },
-                        { id: 'rp2-kiratarjuniya', name: 'Selections from Kirātārjunīya' }
+                        { id: 'rp2-meghaduta', name: 'Selections from Meghadūta' },
+                        { id: 'rp2-kiratarjuniya', name: 'Selections from Kirātārjunīya' },
+                        { id: 'rp2-nitishataka', name: 'Selections from Nītiśataka' }
                     ]
                 },
                 'vedanta': {
@@ -1164,6 +1187,9 @@
                         { id: 'brahman-atman', name: 'Brahman, Ātman, and Māyā' },
                         { id: 'vishishtadvaita', name: 'Viśiṣṭādvaita (Rāmānuja)' },
                         { id: 'dvaita-vedanta', name: 'Dvaita Vedānta (Madhva)' },
+                        { id: 'dvaitadvaita', name: 'Dvaitādvaita (Nimbārka)' },
+                        { id: 'shuddhadvaita', name: 'Śuddhādvaita (Vallabha)' },
+                        { id: 'acintya-bhedabheda', name: 'Acintya Bhedābheda (Caitanya)' },
                         { id: 'brahma-sutras', name: 'Introduction to the Brahma Sūtras' }
                     ]
                 },
@@ -1184,7 +1210,9 @@
                         { id: 'vyakarana-philosophy', name: 'Philosophy of Grammar (Śabda-Brahman)' },
                         { id: 'paribhashendushekhara', name: 'Introduction to Paribhāṣenduśekhara' },
                         { id: 'vaiyakaranabhusanasara', name: 'Introduction to Vaiyākaraṇabhūṣaṇasāra' },
-                        { id: 'sphota-vada-detail', name: 'Sphota-vāda in Detail (Bhartṛhari)' }
+                        { id: 'sphota-vada-detail', name: 'Sphota-vāda in Detail (Bhartṛhari)' },
+                        { id: 'mahabhasya-deep-dive', name: 'Deep Dive into Mahābhāṣya Āhnikas' },
+                        { id: 'kashika-vrtti', name: 'Kāśikā-vṛtti and its importance' }
                     ]
                 },
                 'epigraphy-manuscriptology': {
@@ -1202,7 +1230,9 @@
                     lessons: [
                         { id: 'rp3-nyayasutra', name: 'Selections from Nyāya Sūtras with Bhāṣya' },
                         { id: 'rp3-mahabhashya', name: 'Selections from Mahābhāṣya' },
-                        { id: 'rp3-shakuntala', name: 'Reading Abhijñānaśākuntalam' }
+                        { id: 'rp3-shakuntala', name: 'Reading Abhijñānaśākuntalam' },
+                        { id: 'rp3-uttararamacarita', name: 'Reading Uttararāmacarita' },
+                        { id: 'rp3-dashakumaracarita', name: 'Selections from Daśakumāracarita' }
                     ]
                 },
                 'conclusion-course-2': {
@@ -1224,21 +1254,32 @@
                         { id: 'cfs3-community', name: 'Engaging with the Scholarly Community' },
                         { id: 'cfs3-lifelong', name: 'Lifelong Learning in Sanskrit' }
                     ]
+                },
+                'external-resources': {
+                    name: "External Resources",
+                    lessons: [
+                        { id: 'res-sanskrit-docs', name: 'Sanskrit Documents Collection', url: 'https://sanskritdocuments.org/' },
+                        { id: 'res-ashtadhyayi1', name: 'Ashtadhyayi Sutras', url: 'https://ashtadhyayi.com/sutraani' },
+                        { id: 'res-ashtadhyayi2', name: 'Ashtadhyayi Dhatus', url: 'https://ashtadhyayi.com/dhatu' },
+                        { id: 'res-ashtadhyayi3', name: 'Ashtadhyayi Shabdas', url: 'https://ashtadhyayi.com/shabda' },
+                        { id: 'res-ashtadhyayi4', name: 'Ashtadhyayi Kosha', url: 'https://ashtadhyayi.com/kosha' }
+                        
+                    ]
                 }
             };
 
             const courses = {
                 course1: {
                     name: "SAN Course I",
-                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'reading-practice-1', 'conclusion-further-studies']
+                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'reading-practice-1', 'conclusion-further-studies', 'external-resources']
                 },
                 course2: {
                     name: "SAN Course II",
-                    modules: ['chandas', 'alankara', 'vedic-sanskrit', 'kavya-shastra', 'nyaya-vaisheshika', 'mimamsa', 'reading-practice-2', 'conclusion-course-2']
+                    modules: ['chandas', 'alankara', 'vedic-sanskrit', 'kavya-shastra', 'nyaya-vaisheshika', 'mimamsa', 'sanskrit-composition', 'reading-practice-2', 'conclusion-course-2', 'external-resources']
                 },
                 course3: {
                     name: "SAN Course III",
-                    modules: ['vedanta', 'sankhya-yoga', 'advanced-vyakarana', 'epigraphy-manuscriptology', 'reading-practice-3', 'conclusion-course-3']
+                    modules: ['vedanta', 'sankhya-yoga', 'advanced-vyakarana', 'epigraphy-manuscriptology', 'reading-practice-3', 'conclusion-course-3', 'external-resources']
                 }
             };
             
@@ -3123,11 +3164,15 @@
                             lessonItem.className = 'w-full text-left p-3 bg-gray-700 rounded-lg hover:bg-gray-600 flex justify-between items-center';
                             lessonItem.dataset.moduleId = moduleId;
                             lessonItem.dataset.lessonIndex = index;
-                            lessonItem.dataset.type = 'lesson'; // Add type
-                            lessonItem.innerHTML = `
-                                <span>${lesson.name}</span>
-                                ${isCompleted ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' : ''}
-                            `;
+                            lessonItem.dataset.type = 'lesson';
+
+                            let lessonHTML = `<span>${lesson.name}</span>`;
+                            if (isCompleted) {
+                                lessonHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                            } else if (lesson.url) {
+                                lessonHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`;
+                            }
+                            lessonItem.innerHTML = lessonHTML;
                             lessonSelectionList.appendChild(lessonItem);
                         });
                     }
@@ -3158,8 +3203,15 @@
                     if (type === 'module') {
                         openLessonSelectionModal(moduleId); // Re-open modal with lessons
                     } else if (type === 'lesson') {
-                        lessonSelectionModal.classList.add('hidden');
-                        openLessonModal(moduleId, parseInt(lessonIndex, 10));
+                        const module = modules[moduleId];
+                        const lesson = module.lessons[parseInt(lessonIndex, 10)];
+                        if (lesson.url) {
+                            window.open(lesson.url, '_blank');
+                            lessonSelectionModal.classList.add('hidden');
+                        } else {
+                            lessonSelectionModal.classList.add('hidden');
+                            openLessonModal(moduleId, parseInt(lessonIndex, 10));
+                        }
                     }
                 }
             });
