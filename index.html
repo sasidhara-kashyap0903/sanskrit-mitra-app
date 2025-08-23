@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="./public/output.css" rel="stylesheet">
+
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <script>
@@ -322,7 +324,6 @@
 
             <!-- Chatbot Component -->
             <div id="chatbot-container" class="w-full bg-gray-900/80 backdrop-blur-sm flex flex-col h-full">
-                <audio id="audio-player"></audio>
                 
                 <div class="p-4 border-b border-cyan-500/30 flex-shrink-0 flex justify-between items-center">
                     <div class="flex items-center gap-2 flex-shrink-0">
@@ -752,7 +753,6 @@
             // --- State Management ---
             let isLoading = false;
             let playingMessageId = null;
-            let playingOverviewModuleId = null;
             let editingMessageId = null;
             let messages = [];
             let allChatsCache = [];
@@ -1036,7 +1036,7 @@
                     ]
                 },
                 'conclusion-further-studies': {
-                    name: "Conclusion & Further Studies",
+                    name: "Conclusion & Further Studies I",
                     lessons: [
                         { id: 'cfs-review', name: 'Course I Review & Consolidation' },
                         { id: 'cfs-literature', name: 'Introduction to Sanskrit Literature (साहित्यम्)' },
@@ -1056,9 +1056,11 @@
                         { id: 'tristubh-jagati', name: 'Triṣṭubh & Jagatī Meters' },
                         { id: 'upajati', name: 'Upajāti (Indravajrā & Upendravajrā)' },
                         { id: 'vasantatilaka', name: 'Vasantatilakā Meter' },
+                        { id: 'malini', name: 'Mālinī Meter' },
                         { id: 'sardulavikridita', name: 'Śārdūlavikrīḍita Meter' },
                         { id: 'mandakranta', name: 'Mandākrāntā Meter' },
                         { id: 'sikhariṇi', name: 'Śikhariṇī Meter' },
+                        { id: 'sragdhara', name: 'Sragdharā Meter' },
                         { id: 'arya', name: 'Āryā (Mātrā-based Meter)' }
                     ]
                 },
@@ -1076,7 +1078,10 @@
                         { id: 'utpreksa', name: 'Utprekṣā (Poetic Fancy)' },
                         { id: 'atisayokti', name: 'Atiśayokti (Hyperbole)' },
                         { id: 'drstanta', name: 'Dṛṣṭānta (Exemplification)' },
-                        { id: 'arthantaranyasa', name: 'Arthāntaranyāsa (Corroboration)' }
+                        { id: 'arthantaranyasa', name: 'Arthāntaranyāsa (Corroboration)' },
+                        { id: 'vyatireka', name: 'Vyatireka (Contrast)' },
+                        { id: 'vibhavana', name: 'Vibhāvanā (Effect without a Cause)' },
+                        { id: 'visheshokti', name: 'Viśeṣokti (Cause without an Effect)' }
                     ]
                 },
                 'vedic-sanskrit': {
@@ -1085,11 +1090,130 @@
                         { id: 'vedic-intro', name: 'Vedic vs. Classical Sanskrit' },
                         { id: 'vedic-phonology', name: 'Vedic Phonology (e.g., ळ)' },
                         { id: 'pitch-accent', name: 'The Pitch Accent (Udātta, Anudātta, Svarita)' },
+                        { id: 'vedic-sandhi', name: 'Peculiarities of Vedic Sandhi' },
                         { id: 'vedic-verbs-subjunctive', name: 'The Subjunctive Mood (Leṭ)' },
                         { id: 'vedic-verbs-injunctive', name: 'The Injunctive Mood' },
                         { id: 'vedic-infinitives', name: 'Vedic Infinitives' },
                         { id: 'vedic-declension', name: 'Vedic Noun Declension Differences' },
-                        { id: 'vedic-vocabulary', name: 'Vedic Vocabulary & Archaic Words' }
+                        { id: 'vedic-vocabulary', name: 'Vedic Vocabulary & Archaic Words' },
+                        { id: 'reading-rigveda', name: 'Reading a simple Rigvedic Hymn' }
+                    ]
+                },
+                'kavya-shastra': {
+                    name: "Kāvya Śāstra (Poetics)",
+                    lessons: [
+                        { id: 'kavya-intro', name: 'Introduction to Kāvya Śāstra' },
+                        { id: 'rasa-sutra', name: 'Rasa Sūtra of Bharata Muni' },
+                        { id: 'bhava-vibhava', name: 'Bhāva, Vibhāva, Anubhāva' },
+                        { id: 'dhvani-theory', name: 'Dhvani Theory (Ānandavardhana)' },
+                        { id: 'vakrokti', name: 'Vakrokti (Kuntaka)' },
+                        { id: 'kavya-prakasha', name: 'Introduction to Kāvyaprakāśa (Mammaṭa)' }
+                    ]
+                },
+                'nyaya-vaisheshika': {
+                    name: "Nyāya-Vaiśeṣika",
+                    lessons: [
+                        { id: 'nyaya-intro', name: 'Introduction to Nyāya Philosophy' },
+                        { id: 'pramanas', name: 'The Pramāṇas (Means of Knowledge)' },
+                        { id: 'padarthas', name: 'The 16 Padārthas of Gautama' },
+                        { id: 'vaisheshika-intro', name: 'Introduction to Vaiśeṣika Philosophy' },
+                        { id: 'dravya-guna-karma', name: 'Dravya, Guṇa, Karma' },
+                        { id: 'paramanu-vada', name: 'Paramāṇu-vāda (Atomism)' }
+                    ]
+                },
+                'mimamsa': {
+                    name: "Mīmāṃsā",
+                    lessons: [
+                        { id: 'mimamsa-intro', name: 'Introduction to Mīmāṃsā School' },
+                        { id: 'sabda-pramana', name: 'Śabda as Primary Pramāṇa' },
+                        { id: 'dharma-definition', name: 'The Definition of Dharma' },
+                        { id: 'vidhi-arthavada', name: 'Vidhi, Niṣedha, Arthavāda' },
+                        { id: 'bhavana', name: 'The concept of Bhāvanā' }
+                    ]
+                },
+                'reading-practice-1': {
+                    name: "Reading Practice I",
+                    lessons: [
+                        { id: 'rp1-panchatantra', name: 'Selections from Pañcatantra' },
+                        { id: 'rp1-subhashita', name: 'Subhāṣita Reading' },
+                        { id: 'rp1-simple-stories', name: 'Simple Conversational Stories' }
+                    ]
+                },
+                'reading-practice-2': {
+                    name: "Reading Practice II",
+                    lessons: [
+                        { id: 'rp2-hitopadesha', name: 'Selections from Hitopadeśa' },
+                        { id: 'rp2-raghuvamsha', name: 'Selections from Raghuvaṃśa' },
+                        { id: 'rp2-kiratarjuniya', name: 'Selections from Kirātārjunīya' }
+                    ]
+                },
+                'vedanta': {
+                    name: "Vedānta Philosophy",
+                    lessons: [
+                        { id: 'vedanta-intro', name: 'Introduction to Vedānta' },
+                        { id: 'advaita-vedanta', name: 'Advaita Vedānta (Śaṅkara)' },
+                        { id: 'brahman-atman', name: 'Brahman, Ātman, and Māyā' },
+                        { id: 'vishishtadvaita', name: 'Viśiṣṭādvaita (Rāmānuja)' },
+                        { id: 'dvaita-vedanta', name: 'Dvaita Vedānta (Madhva)' },
+                        { id: 'brahma-sutras', name: 'Introduction to the Brahma Sūtras' }
+                    ]
+                },
+                'sankhya-yoga': {
+                    name: "Sāṅkhya & Yoga",
+                    lessons: [
+                        { id: 'sankhya-intro', name: 'Introduction to Sāṅkhya' },
+                        { id: 'purusha-prakriti', name: 'Puruṣa and Prakṛti' },
+                        { id: 'gunas', name: 'The Three Guṇas' },
+                        { id: 'yoga-intro', name: 'Introduction to Yoga Philosophy' },
+                        { id: 'yoga-sutras', name: 'Patañjali\'s Yoga Sūtras' },
+                        { id: 'ashtanga-yoga', name: 'The Eight Limbs of Yoga (Aṣṭāṅga)' }
+                    ]
+                },
+                'advanced-vyakarana': {
+                    name: "Advanced Vyākaraṇa",
+                    lessons: [
+                        { id: 'vyakarana-philosophy', name: 'Philosophy of Grammar (Śabda-Brahman)' },
+                        { id: 'paribhashendushekhara', name: 'Introduction to Paribhāṣenduśekhara' },
+                        { id: 'vaiyakaranabhusanasara', name: 'Introduction to Vaiyākaraṇabhūṣaṇasāra' },
+                        { id: 'sphota-vada-detail', name: 'Sphota-vāda in Detail (Bhartṛhari)' }
+                    ]
+                },
+                'epigraphy-manuscriptology': {
+                    name: "Epigraphy & Manuscriptology",
+                    lessons: [
+                        { id: 'epigraphy-intro', name: 'Introduction to Indian Epigraphy' },
+                        { id: 'brahmi-script', name: 'Reading Brahmi Script' },
+                        { id: 'gupta-script', name: 'Reading Gupta Script' },
+                        { id: 'manuscriptology-intro', name: 'Introduction to Manuscriptology' },
+                        { id: 'reading-manuscripts', name: 'Challenges in Reading Manuscripts' }
+                    ]
+                },
+                'reading-practice-3': {
+                    name: "Reading Practice III",
+                    lessons: [
+                        { id: 'rp3-nyayasutra', name: 'Selections from Nyāya Sūtras with Bhāṣya' },
+                        { id: 'rp3-mahabhashya', name: 'Selections from Mahābhāṣya' },
+                        { id: 'rp3-shakuntala', name: 'Reading Abhijñānaśākuntalam' }
+                    ]
+                },
+                'conclusion-course-2': {
+                    name: "Conclusion & Further Studies II",
+                    lessons: [
+                        { id: 'cfs2-review', name: 'Course II Review & Consolidation' },
+                        { id: 'cfs2-kavya-analysis', name: 'Analyzing Kāvya with Poetics' },
+                        { id: 'cfs2-darshana-intro', name: 'Introduction to Darśana (Philosophy)' },
+                        { id: 'cfs2-resources', name: 'Intermediate Study Resources' },
+                        { id: 'cfs2-next-steps', name: 'Next Steps: SAN Course III' }
+                    ]
+                },
+                'conclusion-course-3': {
+                    name: "Conclusion & Further Studies III",
+                    lessons: [
+                        { id: 'cfs3-review', name: 'Course III Review & Synthesis' },
+                        { id: 'cfs3-shastra-debate', name: 'Understanding Śāstric Debates' },
+                        { id: 'cfs3-research', name: 'Pathways to Independent Research' },
+                        { id: 'cfs3-community', name: 'Engaging with the Scholarly Community' },
+                        { id: 'cfs3-lifelong', name: 'Lifelong Learning in Sanskrit' }
                     ]
                 }
             };
@@ -1097,15 +1221,15 @@
             const courses = {
                 course1: {
                     name: "SAN Course I",
-                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'conclusion-further-studies']
+                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'reading-practice-1', 'conclusion-further-studies']
                 },
                 course2: {
                     name: "SAN Course II",
-                    modules: ['chandas', 'alankara', 'vedic-sanskrit']
+                    modules: ['chandas', 'alankara', 'vedic-sanskrit', 'kavya-shastra', 'nyaya-vaisheshika', 'mimamsa', 'reading-practice-2', 'conclusion-course-2']
                 },
                 course3: {
                     name: "SAN Course III",
-                    modules: []
+                    modules: ['vedanta', 'sankhya-yoga', 'advanced-vyakarana', 'epigraphy-manuscriptology', 'reading-practice-3', 'conclusion-course-3']
                 }
             };
             
@@ -2037,26 +2161,24 @@
             });
 
             // --- Voice Selection ---
-            const voices = [
-                { id: 'Achird', name: 'Achird', gender: 'Female', desc: 'Friendly' },
-                { id: 'Vindemiatrix', name: 'Vindemiatrix', gender: 'Female', desc: 'Gentle' },
-                { id: 'Leda', name: 'Leda', gender: 'Female', desc: 'Youthful' },
-                { id: 'Sadaltager', name: 'Sadaltager', gender: 'Male', desc: 'Knowledgeable' },
-                { id: 'Algenib', name: 'Algenib', gender: 'Male', desc: 'Gravelly' },
-                { id: 'Charon', name: 'Charon', gender: 'Male', desc: 'Informative' },
-            ];
-
+            let synthesisVoices = [];
             const populateVoiceOptions = () => {
+                synthesisVoices = window.speechSynthesis.getVoices();
                 voiceOptionsContainer.innerHTML = '';
-                voices.forEach(voice => {
-                    const isChecked = voice.id === selectedVoice;
+                if (synthesisVoices.length === 0) {
+                    voiceOptionsContainer.innerHTML = '<p class="text-gray-400 text-center col-span-full">No voices available in your browser.</p>';
+                    return;
+                }
+                
+                synthesisVoices.forEach(voice => {
+                    const isChecked = voice.name === selectedVoice;
                     const option = document.createElement('label');
                     option.className = 'voice-option flex items-center p-3 bg-gray-700/50 rounded-lg border-2 border-transparent cursor-pointer hover:border-cyan-600 transition-colors';
                     option.innerHTML = `
-                        <input type="radio" name="voice" value="${voice.id}" class="hidden" ${isChecked ? 'checked' : ''}>
+                        <input type="radio" name="voice" value="${voice.name}" class="hidden" ${isChecked ? 'checked' : ''}>
                         <div class="flex-1">
-                            <div class="font-semibold text-white">${voice.name} (${voice.gender})</div>
-                            <div class="text-sm text-gray-400">${voice.desc}</div>
+                            <div class="font-semibold text-white">${voice.name}</div>
+                            <div class="text-sm text-gray-400">${voice.lang} ${voice.default ? '(default)' : ''}</div>
                         </div>
                         <div class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center">
                             ${isChecked ? '<div class="w-2.5 h-2.5 bg-cyan-500 rounded-full"></div>' : ''}
@@ -2065,6 +2187,10 @@
                     voiceOptionsContainer.appendChild(option);
                 });
             };
+
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populateVoiceOptions;
+            }
 
             if (voiceSelectBtn) voiceSelectBtn.addEventListener('click', () => {
                 populateVoiceOptions();
@@ -2275,10 +2401,58 @@
 
 
             // --- Global Functions ---
-            window.handleStopAudio = () => { if (audioPlayer && audioPlayer.src && !audioPlayer.paused) { audioPlayer.pause(); audioPlayer.currentTime = 0; } playingMessageId = null; playingOverviewModuleId = null; window.updateAudioIcons(); updateOverviewIcons(); };
-            if (audioPlayer) audioPlayer.onended = window.handleStopAudio;
+            window.handleStopAudio = () => {
+                if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                playingMessageId = null;
+                window.updateAudioIcons();
+            };
             window.updateAudioIcons = () => { document.querySelectorAll('.speak-btn').forEach(btn => { const id = parseInt(btn.dataset.speakId); btn.innerHTML = id === playingMessageId ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; }); stopAudioContainer.innerHTML = ''; if (playingMessageId) { const stopBtn = document.createElement('button'); stopBtn.className = "p-1 rounded-full hover:bg-red-500/20 transition-colors"; stopBtn.ariaLabel = "Stop audio"; stopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>`; stopBtn.onclick = window.handleStopAudio; stopAudioContainer.appendChild(stopBtn); } };
-            window.handleSpeak = async (speakBtn) => { const messageId = parseInt(speakBtn.dataset.speakId); if (playingMessageId === messageId) { window.handleStopAudio(); return; } window.handleStopAudio(); const message = messages.find(m => m.id === messageId); if (!message || message.imageURL) return; speakBtn.innerHTML = `<div class="w-4 h-4 border-2 border-gray-400 border-t-white rounded-full animate-spin"></div>`; const audioInfo = await callGeminiTTSAPI(message.text); if (audioInfo) { const sampleRate = parseInt(audioInfo.mimeType.match(/rate=(\d+)/)[1], 10); const pcmData = base64ToArrayBuffer(audioInfo.audioData); const pcm16 = new Int16Array(pcmData); const wavBlob = pcmToWav(pcm16, sampleRate); const audioUrl = URL.createObjectURL(wavBlob); audioPlayer.src = audioUrl; audioPlayer.play(); playingMessageId = messageId; window.updateAudioIcons(); } else { window.updateAudioIcons(); } };
+            window.handleSpeak = (speakBtn) => {
+                const messageId = parseInt(speakBtn.dataset.speakId);
+
+                if (window.speechSynthesis.speaking && playingMessageId === messageId) {
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                
+                const message = messages.find(m => m.id === messageId);
+                if (!message || message.imageURL) return;
+
+                const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+                const voice = window.speechSynthesis.getVoices().find(v => v.name === selectedVoice);
+                if (voice) {
+                    utterance.voice = voice;
+                } else {
+                    const sanskritVoice = window.speechSynthesis.getVoices().find(v => v.lang.startsWith('sa-IN'));
+                    if (sanskritVoice) utterance.voice = sanskritVoice;
+                }
+
+                utterance.onstart = () => {
+                    playingMessageId = messageId;
+                    window.updateAudioIcons();
+                };
+
+                utterance.onend = () => {
+                    playingMessageId = null;
+                    window.updateAudioIcons();
+                };
+                
+                utterance.onerror = (event) => {
+                    console.error('SpeechSynthesisUtterance.onerror', event);
+                    playingMessageId = null;
+                    window.updateAudioIcons();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            };
             window.handleCopyToClipboard = (copyBtn) => { const messageId = parseInt(copyBtn.dataset.copyId); const message = messages.find(m => m.id === messageId); if (!message) return; const textArea = document.createElement('textarea'); let textToCopy = message.text; if (message.translation) { textToCopy += `\n\n${message.translation}`; } textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 pointer-events-none"><polyline points="20 6 9 17 4 12"></polyline></svg>`; setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>`; }, 2000); } catch (err) { console.error('Failed to copy text: ', err); } document.body.removeChild(textArea); };
             window.handleTranslate = (translateBtn) => { const messageId = parseInt(translateBtn.dataset.translateId); const messageNode = document.getElementById(`message-${messageId}`); if (!messageNode) return; const translationContainer = messageNode.querySelector('.translation-content'); if (translationContainer) { translationContainer.classList.toggle('hidden'); } };
         
@@ -2936,12 +3110,6 @@
 
         });
 
-        // --- Audio Processing Utilities ---
-        async function callGeminiTTSAPI(textToSpeak){const apiKey="";const apiUrl=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;const payload={contents:[{parts:[{text:textToSpeak}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:selectedVoice}}}}};try{const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!response.ok)throw new Error(`TTS API request failed with status ${response.status}`);const result=await response.json();const part=result?.candidates?.[0]?.content?.parts?.[0];if(part?.inlineData?.data&&part?.inlineData?.mimeType?.startsWith("audio/")){return{audioData:part.inlineData.data,mimeType:part.inlineData.mimeType};}return null;}catch(error){console.error("TTS Generation Error:",error);return null;}}
-        function base64ToArrayBuffer(base64){const binaryString=window.atob(base64);const len=binaryString.length;const bytes=new Uint8Array(len);for(let i=0;i<len;i++){bytes[i]=binaryString.charCodeAt(i);}return bytes.buffer;}
-        function writeString(view,offset,string){for(let i=0;i<string.length;i++){view.setUint8(offset+i,string.charCodeAt(i));}}
-        function pcmToWav(pcmData,sampleRate){const numChannels=1,bitsPerSample=16;const blockAlign=numChannels*bitsPerSample/8;const byteRate=sampleRate*blockAlign;const dataSize=pcmData.length*pcmData.BYTES_PER_ELEMENT;const buffer=new ArrayBuffer(44+dataSize);const view=new DataView(buffer);writeString(view,0,'RIFF');view.setUint32(4,36+dataSize,true);writeString(view,8,'WAVE');writeString(view,12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,numChannels,true);view.setUint32(24,sampleRate,true);view.setUint32(28,byteRate,true);view.setUint16(32,blockAlign,true);view.setUint16(34,bitsPerSample,true);writeString(view,36,'data');view.setUint32(40,dataSize,true);for(let i=0;i<pcmData.length;i++){view.setInt16(44+i*2,pcmData[i],true);}return new Blob([view],{type:'audio/wav'});}
-    
     </script>
 
 </body>
