@@ -14,7 +14,6 @@ const firebaseConfig = {
   storageBucket: "sasnkrit-mitra-app.firebasestorage.app",
   messagingSenderId: "930289396247",
   appId: "1:930289396247:web:043e7c1b95434f69b94a52",
-  measurementId: "G-R3C6VFLPSR"
 };
 
 // Initialize Firebase if no app is already initialized
@@ -27,13 +26,16 @@ window.addEventListener('load', () => {
 	console.log('Window loaded.'); // Add this to confirm the load event is firing
 
 	const getLessonsForModule = (moduleId) => {
+		// This is a placeholder function. You'll likely fetch real lesson data here.
+		return [{
+			id: 1, // Assuming you want an id for the first lesson too
 			name: `Lesson 1.1 for Module ${moduleId}`
 		}, {
 			id: 2,
 			name: `Lesson 1.2 for Module ${moduleId}`
 		}, ];
 	};
-	// Function to open the lesson selection modal for a given module
+
 	const openLessonSelectionModal = (moduleId) => {
 		const modal = document.getElementById('lesson-selection-modal');
 		const modalTitle = document.getElementById('lesson-selection-modal-title');
@@ -55,10 +57,79 @@ window.addEventListener('load', () => {
 		}
 	};
 
+	// Keep track of the currently playing message ID
+	let playingMessageId = null;
 
+	// Ensure voices are loaded before attempting to speak
+	// Some browsers load voices asynchronously
+	window.speechSynthesis.onvoiceschanged = () => {
+		console.log('Speech synthesis voices loaded or changed.');
+		// You might want to update UI elements here if they depend on voice availability
+	};
 
+	// Function to handle speech synthesis
+	const handleSpeak = (messageId, text, selectedVoice) => {
 
+		const voices = window.speechSynthesis.getVoices();
+		if (voices.length === 0) {
+			console.error('No speech synthesis voices available.');
+			window.updateAudioIcons(); // Make sure this function exists and updates UI accordingly
+			return; // Stop the function execution if no voices
+		}
 
+		// Stop any currently playing speech
+		if (window.speechSynthesis.speaking && playingMessageId !== messageId) {
+			window.speechSynthesis.cancel();
+			playingMessageId = null; // Reset
+			window.updateAudioIcons(); // Update icons after cancelling
+		}
+
+		if (playingMessageId === messageId) {
+			// If the same message is playing, stop it
+			window.speechSynthesis.cancel();
+			playingMessageId = null; // Reset
+			window.updateAudioIcons(); // Update icons after cancelling
+		} else {
+			// Strip HTML tags from the text
+			const cleanText = text.replace(/<\/?[^>]+(>|$)/g, "");
+
+			const utterance = new SpeechSynthesisUtterance(cleanText);
+
+			// Try to find an English voice first for testing
+			let voice = voices.find(v => v.lang.startsWith('en-US'));
+
+			// If no English voice, try the selected voice
+			if (!voice) {
+				voice = voices.find(v => v.name === selectedVoice);
+			}
+			// If still no voice, try a Sanskrit voice as a last resort
+			if (!voice) {
+				 voice = voices.find(v => v.lang.startsWith('sa-IN'));
+			}
+
+			if (voice) {
+				utterance.voice = voice;
+			} else {
+				console.warn('No suitable speech synthesis voice found. Using browser default.');
+				// The browser will use a default voice if utterance.voice is not set
+			}
+
+			utterance.onend = () => {
+				playingMessageId = null;
+				window.updateAudioIcons(); // Update icons when speech ends
+			};
+			utterance.onerror = (event) => {
+				if (event.error === 'interrupted') {
+					// This is expected, so we do nothing.
+					console.log("Speech interrupted as intended.");
+					return; 
+				}
+				// Log any other, unexpected errors
+				console.error("An unexpected speech synthesis error occurred:", event.error);
+			};
+			window.speechSynthesis.speak(utterance);
+		}
+	};
 	// Toggle mobile menu: checks if all required elements exist before adding event listeners.
 	if (showMenuButton && hideMenuButton && mobileMenu) {
 		showMenuButton.addEventListener('click', () => {
