@@ -1,13 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanskrit Mitra - AI Learning Platform</title>
+    <title>Sanskrit Mitra - Your Personal Tutor</title>
     <script src="https://cdn-tailwindcss.vercel.app/"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="./public/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/index.css">
+
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <script>
@@ -205,7 +209,6 @@
         .light #tools-menu-dropdown button { color: #4b5563; }
         .light #tools-menu-dropdown button:hover { background-color: #f3f4f6; }
     </style>
-  <script type="module" crossorigin src="/assets/index-mFvUKuQf.js"></script>
 </head>
 <body class="bg-gray-900 text-white transition-colors duration-300">
     <script>
@@ -222,6 +225,41 @@
         const __firebase_config = JSON.stringify(firebaseConfig);
     </script>
     <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, getDocs, writeBatch, updateDoc, query, orderBy, deleteDoc, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        
+        window.firebase = {
+            initializeApp,
+            getAuth,
+            signInAnonymously,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signOut,
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            onSnapshot,
+            collection,
+            addDoc,
+            serverTimestamp,
+            getDocs,
+            writeBatch,
+            query,
+            orderBy,
+            deleteDoc,
+            where,
+            Timestamp,
+            getStorage,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        };
+    </script>
 
     <div class="h-screen flex flex-col relative overflow-hidden">
         <!-- Background decorative blobs -->
@@ -288,7 +326,6 @@
 
             <!-- Chatbot Component -->
             <div id="chatbot-container" class="w-full bg-gray-900/80 backdrop-blur-sm flex flex-col h-full">
-                <audio id="audio-player"></audio>
                 
                 <div class="p-4 border-b border-cyan-500/30 flex-shrink-0 flex justify-between items-center">
                     <div class="flex items-center gap-2 flex-shrink-0">
@@ -315,7 +352,7 @@
                     <div class="text-center flex-shrink mx-2">
                         <div class="flex justify-center items-center gap-2">
                            <h2 class="text-xl font-bold text-cyan-400 truncate">Sanskrit Mitra</h2>
-                           <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">BETA</span>
+                           <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Beta</span>
                         </div>
                         <p id="view-mode-indicator" class="text-sm text-gray-400 truncate">Your AI Sanskrit Companion</p>
                     </div>
@@ -324,9 +361,7 @@
                            <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                            <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                         </button>
-                        <button id="voice-select-btn" title="Select Voice" class="p-2 rounded-full hover:bg-gray-700 transition-colors" aria-label="Select Voice">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                        </button>
+    
                         <div id="stop-audio-container" class="w-8 h-8"></div>
                     </div>
                 </div>
@@ -375,6 +410,10 @@
                                     <button id="achievements-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 12h8l-3-3 3-3h-8V4h10v16H12z"/></svg>
                                         <span>My Achievements</span>
+                                    </button>
+                                    <button id="image-gen-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.3 0 .5.1.8.3l4.5 3.5c.2.2.3.4.3.7v9c0 .3-.1.5-.3.8l-4.5 3.5c-.3.2-.5.3-.8.3s-.5-.1-.8-.3L6.7 20.3c-.2-.2-.3-.4-.3-.7v-9c0-.3.1-.5.3-.8l4.5-3.5c.3-.2.5-.3.8-.3z"/><path d="m9.5 14.5 2.5-3 2.5 3"/><path d="M12 11.5V16"/><path d="m8.5 8 2 2.5 2-2.5"/></svg>
+                                        <span>Generate Image</span>
                                     </button>
                                     <button id="deep-think-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7v0A2.5 2.5 0 0 1 7 9.5v0A2.5 2.5 0 0 1 4.5 12v0A2.5 2.5 0 0 1 7 14.5v0A2.5 2.5 0 0 1 9.5 17v0A2.5 2.5 0 0 1 12 19.5v0A2.5 2.5 0 0 1 14.5 17v0A2.5 2.5 0 0 1 17 14.5v0A2.5 2.5 0 0 1 19.5 12v0A2.5 2.5 0 0 1 17 9.5v0A2.5 2.5 0 0 1 14.5 7v0A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 2Z"/><path d="M12 12a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 17v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 12Z"/><path d="M12 4.5a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 9.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 4.5Z"/><path d="M17 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0a2.5 2.5 0 0 0-2.5-2.5Z"/><path d="M7 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 7 9.5Z"/></svg>
@@ -437,6 +476,28 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Image Generation Modal -->
+        <div id="image-gen-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-cyan-400">Generate an Image with Imagen</h3>
+                    <button id="image-gen-close-btn" class="p-1 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <textarea id="image-gen-prompt" rows="3" placeholder="e.g., A serene painting of a sage meditating under a banyan tree in ancient India..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+                    <div id="image-gen-loader" class="hidden items-center justify-center gap-2 text-gray-400">
+                        <div class="w-5 h-5 border-2 border-gray-500 border-t-cyan-500 rounded-full animate-spin"></div>
+                        <span>Generating your masterpiece...</span>
+                    </div>
+                    <button id="image-gen-submit-btn" class="w-full px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:bg-cyan-500 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+                        Generate
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Task Scheduler Modal -->
         <div id="task-scheduler-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
@@ -467,6 +528,10 @@
                         <select id="task-timezone" class="task-input w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
                             <!-- Timezones will be populated here -->
                         </select>
+                    </div>
+                    <div class="flex items-center pt-2">
+                        <input id="task-alarm" type="checkbox" checked class="h-4 w-4 rounded border-gray-600 text-cyan-600 focus:ring-cyan-500 bg-gray-700">
+                        <label for="task-alarm" class="ml-3 block text-sm font-medium text-gray-300">Enable Alarm (सूचना)</label>
                     </div>
                 </div>
                 <div class="mt-6 text-right">
@@ -590,7 +655,10 @@
             </div>
         </div>
     </div>
-
+    <audio id="audio-player" class="hidden"></audio>
+    <audio id="alarm-sound" loop class="hidden">
+        <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+    </audio>
     <script>
         let selectedVoice = 'Achird'; // Default voice
 
@@ -636,6 +704,12 @@
             const themeToggleBtn = document.getElementById('theme-toggle-btn');
             const themeIconSun = document.getElementById('theme-icon-sun');
             const themeIconMoon = document.getElementById('theme-icon-moon');
+            const imageGenBtn = document.getElementById('image-gen-btn');
+            const imageGenModal = document.getElementById('image-gen-modal');
+            const imageGenCloseBtn = document.getElementById('image-gen-close-btn');
+            const imageGenPrompt = document.getElementById('image-gen-prompt');
+            const imageGenSubmitBtn = document.getElementById('image-gen-submit-btn');
+            const imageGenLoader = document.getElementById('image-gen-loader');
             const scheduleTaskBtn = document.getElementById('schedule-task-btn');
             const guidedLearningBtn = document.getElementById('guided-learning-btn');
             const deepThinkBtn = document.getElementById('deep-think-btn');
@@ -682,11 +756,11 @@
             const toolsMenuBtn = document.getElementById('tools-menu-btn');
             const toolsMenuDropdown = document.getElementById('tools-menu-dropdown');
             const exportChatBtn = document.getElementById('export-chat-btn');
+            const alarmSound = document.getElementById('alarm-sound');
 
             // --- State Management ---
             let isLoading = false;
             let playingMessageId = null;
-            let playingOverviewModuleId = null;
             let editingMessageId = null;
             let messages = [];
             let allChatsCache = [];
@@ -700,6 +774,7 @@
             let learningProgress = {};
             let currentQuiz = {};
             let activeCourseId = 'course1';
+            let alarmIntervalId = null;
             
             // --- Firebase State ---
             let db, auth, userId, storage;
@@ -755,7 +830,9 @@
                         { id: 'common-indeclinables', name: 'Common Indeclinables (अव्ययानि)' },
                         { id: 'simple-verbs', name: 'Simple Verbs (क्रियापदानि)' },
                         { id: 'question-words', name: 'Question Words (प्रश्नवाचकशब्दाः)' },
-                        { id: 'basic-conjunctions', name: 'Basic Conjunctions (समुच्चयबोधकाः)' }
+                        { id: 'basic-conjunctions', name: 'Basic Conjunctions (समुच्चयबोधकाः)' },
+                        { id: 'time-days', name: 'Time, Days, and Seasons (कालः, वासराः, ऋतवः)' },
+                        { id: 'family-relations', name: 'Family Relations (कुटुम्बसम्बन्धाः)' }
                     ]
                 },
                 'sabda-rupa': {
@@ -763,11 +840,14 @@
                     lessons: [
                         { id: 'sabda-intro', name: 'Introduction to Śabda Rūpa' },
                         { id: 'akaranta-pumlinga', name: 'Akārānta Puṃliṅga (-a, masc.)' },
+                        { id: 'akaranta-napumsaka', name: 'Akārānta Napuṃsakaliṅga (-a, neut.)' },
                         { id: 'akaranta-strilinga', name: 'Ākārānta Strīliṅga (-ā, fem.)' },
                         { id: 'ikaranta-pumlinga', name: 'Ikārānta Puṃliṅga (-i, masc.)' },
                         { id: 'ikaranta-strilinga', name: 'Īkārānta Strīliṅga (-ī, fem.)' },
+                        { id: 'ukaranta-pumlinga', name: 'Ukārānta Puṃliṅga (-u, masc.)' },
                         { id: 'ukaranta-napumsaka', name: 'Ukārānta Napuṃsakaliṅga (-u, neut.)' },
                         { id: 'rkaranata-pumlinga', name: 'Ṛkārānta Puṃliṅga (-ṛ, masc.)' },
+                        { id: 'sarvanama-sabda', name: 'Sarvanāma Śabdas (Pronouns)' },
                         { id: 'halanta-sabdas', name: 'Halanta Śabdas (Consonant-ending)' }
                     ]
                 },
@@ -779,7 +859,9 @@
                         { id: 'ganas', name: 'The 10 Gaṇas (Classes of Verbs)' },
                         { id: 'bhu-dhatu', name: 'Conjugating Bhū Dhātu (1P)' },
                         { id: 'gam-dhatu', name: 'Conjugating Gam Dhātu (1P)' },
-                        { id: 'sev-dhatu', name: 'Conjugating Sev Dhātu (1A)' }
+                        { id: 'sev-dhatu', name: 'Conjugating Sev Dhātu (1A)' },
+                        { id: 'as-dhatu', name: 'Conjugating As Dhātu (2P)' },
+                        { id: 'da-dhatu', name: 'Conjugating Dā Dhātu (3P)' }
                     ]
                 },
                 'karaka-vibhakti': {
@@ -970,7 +1052,7 @@
                     ]
                 },
                 'conclusion-further-studies': {
-                    name: "Conclusion & Further Studies",
+                    name: "Conclusion & Further Studies I",
                     lessons: [
                         { id: 'cfs-review', name: 'Course I Review & Consolidation' },
                         { id: 'cfs-literature', name: 'Introduction to Sanskrit Literature (साहित्यम्)' },
@@ -990,9 +1072,11 @@
                         { id: 'tristubh-jagati', name: 'Triṣṭubh & Jagatī Meters' },
                         { id: 'upajati', name: 'Upajāti (Indravajrā & Upendravajrā)' },
                         { id: 'vasantatilaka', name: 'Vasantatilakā Meter' },
+                        { id: 'malini', name: 'Mālinī Meter' },
                         { id: 'sardulavikridita', name: 'Śārdūlavikrīḍita Meter' },
                         { id: 'mandakranta', name: 'Mandākrāntā Meter' },
                         { id: 'sikhariṇi', name: 'Śikhariṇī Meter' },
+                        { id: 'sragdhara', name: 'Sragdharā Meter' },
                         { id: 'arya', name: 'Āryā (Mātrā-based Meter)' }
                     ]
                 },
@@ -1010,7 +1094,10 @@
                         { id: 'utpreksa', name: 'Utprekṣā (Poetic Fancy)' },
                         { id: 'atisayokti', name: 'Atiśayokti (Hyperbole)' },
                         { id: 'drstanta', name: 'Dṛṣṭānta (Exemplification)' },
-                        { id: 'arthantaranyasa', name: 'Arthāntaranyāsa (Corroboration)' }
+                        { id: 'arthantaranyasa', name: 'Arthāntaranyāsa (Corroboration)' },
+                        { id: 'vyatireka', name: 'Vyatireka (Contrast)' },
+                        { id: 'vibhavana', name: 'Vibhāvanā (Effect without a Cause)' },
+                        { id: 'visheshokti', name: 'Viśeṣokti (Cause without an Effect)' }
                     ]
                 },
                 'vedic-sanskrit': {
@@ -1019,11 +1106,164 @@
                         { id: 'vedic-intro', name: 'Vedic vs. Classical Sanskrit' },
                         { id: 'vedic-phonology', name: 'Vedic Phonology (e.g., ळ)' },
                         { id: 'pitch-accent', name: 'The Pitch Accent (Udātta, Anudātta, Svarita)' },
+                        { id: 'vedic-sandhi', name: 'Peculiarities of Vedic Sandhi' },
                         { id: 'vedic-verbs-subjunctive', name: 'The Subjunctive Mood (Leṭ)' },
                         { id: 'vedic-verbs-injunctive', name: 'The Injunctive Mood' },
                         { id: 'vedic-infinitives', name: 'Vedic Infinitives' },
                         { id: 'vedic-declension', name: 'Vedic Noun Declension Differences' },
-                        { id: 'vedic-vocabulary', name: 'Vedic Vocabulary & Archaic Words' }
+                        { id: 'vedic-vocabulary', name: 'Vedic Vocabulary & Archaic Words' },
+                        { id: 'reading-rigveda', name: 'Reading a simple Rigvedic Hymn' }
+                    ]
+                },
+                'kavya-shastra': {
+                    name: "Kāvya Śāstra (Poetics)",
+                    lessons: [
+                        { id: 'kavya-intro', name: 'Introduction to Kāvya Śāstra' },
+                        { id: 'rasa-sutra', name: 'Rasa Sūtra of Bharata Muni' },
+                        { id: 'bhava-vibhava', name: 'Bhāva, Vibhāva, Anubhāva' },
+                        { id: 'dhvani-theory', name: 'Dhvani Theory (Ānandavardhana)' },
+                        { id: 'vakrokti', name: 'Vakrokti (Kuntaka)' },
+                        { id: 'riti-guna-dosha', name: 'Rīti, Guṇa, and Doṣa' },
+                        { id: 'kavya-prakasha', name: 'Introduction to Kāvyaprakāśa (Mammaṭa)' },
+                        { id: 'sahityadarpana', name: 'Introduction to Sāhityadarpaṇa (Viśvanātha)' }
+                    ]
+                },
+                'nyaya-vaisheshika': {
+                    name: "Nyāya-Vaiśeṣika",
+                    lessons: [
+                        { id: 'nyaya-intro', name: 'Introduction to Nyāya Philosophy' },
+                        { id: 'pramanas', name: 'The Pramāṇas (Means of Knowledge)' },
+                        { id: 'padarthas', name: 'The 16 Padārthas of Gautama' },
+                        { id: 'vaisheshika-intro', name: 'Introduction to Vaiśeṣika Philosophy' },
+                        { id: 'dravya-guna-karma', name: 'Dravya, Guṇa, Karma' },
+                        { id: 'paramanu-vada', name: 'Paramāṇu-vāda (Atomism)' }
+                    ]
+                },
+                'mimamsa': {
+                    name: "Mīmāṃsā",
+                    lessons: [
+                        { id: 'mimamsa-intro', name: 'Introduction to Mīmāṃsā School' },
+                        { id: 'sabda-pramana', name: 'Śabda as Primary Pramāṇa' },
+                        { id: 'dharma-definition', name: 'The Definition of Dharma' },
+                        { id: 'vidhi-arthavada', name: 'Vidhi, Niṣedha, Arthavāda' },
+                        { id: 'bhavana', name: 'The concept of Bhāvanā' }
+                    ]
+                },
+                'sanskrit-composition': {
+                    name: "Sanskrit Composition & Letter Writing",
+                    lessons: [
+                        { id: 'comp-paragraph', name: 'Simple Paragraph Writing (सरल-अनुच्छेद-लेखनम्)' },
+                        { id: 'comp-story', name: 'Story Writing (कथा-लेखनम्)' },
+                        { id: 'comp-essay', name: 'Essay Writing (निबन्ध-लेखनम्)' },
+                        { id: 'comp-dialogue', name: 'Dialogue Writing (संवाद-लेखनम्)' },
+                        { id: 'comp-informal-letter', name: 'Informal Letter Writing (अनौपचारिक-पत्र-लेखनम्)' },
+                        { id: 'comp-formal-letter', name: 'Formal Letter Writing (औपचारिक-पत्र-लेखनम्)' }
+                    ]
+                },
+                'reading-practice-1': {
+                    name: "Reading Practice I",
+                    lessons: [
+                        { id: 'rp1-panchatantra', name: 'Selections from Pañcatantra' },
+                        { id: 'rp1-hitopadesha', name: 'Selections from Hitopadeśa' },
+                        { id: 'rp1-subhashita', name: 'Subhāṣita Reading' },
+                        { id: 'rp1-simple-stories', name: 'Simple Conversational Stories' }
+                    ]
+                },
+                'reading-practice-2': {
+                    name: "Reading Practice II",
+                    lessons: [
+                        { id: 'rp2-hitopadesha', name: 'Selections from Hitopadeśa' },
+                        { id: 'rp2-raghuvamsha', name: 'Selections from Raghuvaṃśa' },
+                        { id: 'rp2-meghaduta', name: 'Selections from Meghadūta' },
+                        { id: 'rp2-kiratarjuniya', name: 'Selections from Kirātārjunīya' },
+                        { id: 'rp2-nitishataka', name: 'Selections from Nītiśataka' }
+                    ]
+                },
+                'vedanta': {
+                    name: "Vedānta Philosophy",
+                    lessons: [
+                        { id: 'vedanta-intro', name: 'Introduction to Vedānta' },
+                        { id: 'advaita-vedanta', name: 'Advaita Vedānta (Śaṅkara)' },
+                        { id: 'brahman-atman', name: 'Brahman, Ātman, and Māyā' },
+                        { id: 'vishishtadvaita', name: 'Viśiṣṭādvaita (Rāmānuja)' },
+                        { id: 'dvaita-vedanta', name: 'Dvaita Vedānta (Madhva)' },
+                        { id: 'dvaitadvaita', name: 'Dvaitādvaita (Nimbārka)' },
+                        { id: 'shuddhadvaita', name: 'Śuddhādvaita (Vallabha)' },
+                        { id: 'acintya-bhedabheda', name: 'Acintya Bhedābheda (Caitanya)' },
+                        { id: 'brahma-sutras', name: 'Introduction to the Brahma Sūtras' }
+                    ]
+                },
+                'sankhya-yoga': {
+                    name: "Sāṅkhya & Yoga",
+                    lessons: [
+                        { id: 'sankhya-intro', name: 'Introduction to Sāṅkhya' },
+                        { id: 'purusha-prakriti', name: 'Puruṣa and Prakṛti' },
+                        { id: 'gunas', name: 'The Three Guṇas' },
+                        { id: 'yoga-intro', name: 'Introduction to Yoga Philosophy' },
+                        { id: 'yoga-sutras', name: 'Patañjali\'s Yoga Sūtras' },
+                        { id: 'ashtanga-yoga', name: 'The Eight Limbs of Yoga (Aṣṭāṅga)' }
+                    ]
+                },
+                'advanced-vyakarana': {
+                    name: "Advanced Vyākaraṇa",
+                    lessons: [
+                        { id: 'vyakarana-philosophy', name: 'Philosophy of Grammar (Śabda-Brahman)' },
+                        { id: 'paribhashendushekhara', name: 'Introduction to Paribhāṣenduśekhara' },
+                        { id: 'vaiyakaranabhusanasara', name: 'Introduction to Vaiyākaraṇabhūṣaṇasāra' },
+                        { id: 'sphota-vada-detail', name: 'Sphota-vāda in Detail (Bhartṛhari)' },
+                        { id: 'mahabhasya-deep-dive', name: 'Deep Dive into Mahābhāṣya Āhnikas' },
+                        { id: 'kashika-vrtti', name: 'Kāśikā-vṛtti and its importance' }
+                    ]
+                },
+                'epigraphy-manuscriptology': {
+                    name: "Epigraphy & Manuscriptology",
+                    lessons: [
+                        { id: 'epigraphy-intro', name: 'Introduction to Indian Epigraphy' },
+                        { id: 'brahmi-script', name: 'Reading Brahmi Script' },
+                        { id: 'gupta-script', name: 'Reading Gupta Script' },
+                        { id: 'manuscriptology-intro', name: 'Introduction to Manuscriptology' },
+                        { id: 'reading-manuscripts', name: 'Challenges in Reading Manuscripts' }
+                    ]
+                },
+                'reading-practice-3': {
+                    name: "Reading Practice III",
+                    lessons: [
+                        { id: 'rp3-nyayasutra', name: 'Selections from Nyāya Sūtras with Bhāṣya' },
+                        { id: 'rp3-mahabhashya', name: 'Selections from Mahābhāṣya' },
+                        { id: 'rp3-shakuntala', name: 'Reading Abhijñānaśākuntalam' },
+                        { id: 'rp3-uttararamacarita', name: 'Reading Uttararāmacarita' },
+                        { id: 'rp3-dashakumaracarita', name: 'Selections from Daśakumāracarita' }
+                    ]
+                },
+                'conclusion-course-2': {
+                    name: "Conclusion & Further Studies II",
+                    lessons: [
+                        { id: 'cfs2-review', name: 'Course II Review & Consolidation' },
+                        { id: 'cfs2-kavya-analysis', name: 'Analyzing Kāvya with Poetics' },
+                        { id: 'cfs2-darshana-intro', name: 'Introduction to Darśana (Philosophy)' },
+                        { id: 'cfs2-resources', name: 'Intermediate Study Resources' },
+                        { id: 'cfs2-next-steps', name: 'Next Steps: SAN Course III' }
+                    ]
+                },
+                'conclusion-course-3': {
+                    name: "Conclusion & Further Studies III",
+                    lessons: [
+                        { id: 'cfs3-review', name: 'Course III Review & Synthesis' },
+                        { id: 'cfs3-shastra-debate', name: 'Understanding Śāstric Debates' },
+                        { id: 'cfs3-research', name: 'Pathways to Independent Research' },
+                        { id: 'cfs3-community', name: 'Engaging with the Scholarly Community' },
+                        { id: 'cfs3-lifelong', name: 'Lifelong Learning in Sanskrit' }
+                    ]
+                },
+                'external-resources': {
+                    name: "External Resources",
+                    lessons: [
+                        { id: 'res-sanskrit-docs', name: 'Sanskrit Documents Collection', url: 'https://sanskritdocuments.org/' },
+                        { id: 'res-ashtadhyayi1', name: 'Ashtadhyayi Sutras', url: 'https://ashtadhyayi.com/sutraani' },
+                        { id: 'res-ashtadhyayi2', name: 'Ashtadhyayi Dhatus', url: 'https://ashtadhyayi.com/dhatu' },
+                        { id: 'res-ashtadhyayi3', name: 'Ashtadhyayi Shabdas', url: 'https://ashtadhyayi.com/shabda' },
+                        { id: 'res-ashtadhyayi4', name: 'Ashtadhyayi Kosha', url: 'https://ashtadhyayi.com/kosha' }
+                        
                     ]
                 }
             };
@@ -1031,15 +1271,15 @@
             const courses = {
                 course1: {
                     name: "SAN Course I",
-                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'conclusion-further-studies']
+                    modules: ['sanskrit-basics', 'sabda-rupa', 'dhatu-rupa', 'karaka-vibhakti', 'sandhi', 'samasa', 'lakara', 'prayoga', 'ashtadhyayi-core', 'ashtadhyayi-technical-terms', 'laghu-siddhanta-kaumudi', 'siddhanta-kaumudi', 'katyayana-varttika', 'patanjali-maha-bhashya', 'reading-practice-1', 'conclusion-further-studies', 'external-resources']
                 },
                 course2: {
                     name: "SAN Course II",
-                    modules: ['chandas', 'alankara', 'vedic-sanskrit']
+                    modules: ['chandas', 'alankara', 'vedic-sanskrit', 'kavya-shastra', 'nyaya-vaisheshika', 'mimamsa', 'sanskrit-composition', 'reading-practice-2', 'conclusion-course-2', 'external-resources']
                 },
                 course3: {
                     name: "SAN Course III",
-                    modules: []
+                    modules: ['vedanta', 'sankhya-yoga', 'advanced-vyakarana', 'epigraphy-manuscriptology', 'reading-practice-3', 'conclusion-course-3', 'external-resources']
                 }
             };
             
@@ -1050,7 +1290,8 @@
                 'panditah': { name: 'पण्डितः', desc: 'Score 90%+ on a quiz', icon: '🏆' },
                 'vagdevi_krpa': { name: 'वाग्देवी कृपा', desc: 'Start a 3-day learning streak', icon: '🔥' },
                 'sarasvati_putrah': { name: 'सरस्वती पुत्रः', desc: 'Achieve a 7-day learning streak', icon: '🌟' },
-                'mitra_sambhasanam': { name: 'मित्र सम्भाषणम्', desc: 'Have a chat with over 20 messages', icon: '💬' }
+                'mitra_sambhasanam': { name: 'मित्र सम्भाषणम्', desc: 'Have a chat with over 20 messages', icon: '💬' },
+                'citrakarah': { name: 'चित्रकारः', desc: 'Generate your first image', icon: '🎨' }
             };
 
 
@@ -1315,6 +1556,9 @@
                     if (msg.translation) {
                         chatContent += `Translation: ${msg.translation}\n`;
                     }
+                    if (msg.imageURL) {
+                        chatContent += `[Image was generated with prompt: "${msg.text}"]\n`;
+                    }
                     chatContent += `\n`;
                 });
 
@@ -1345,10 +1589,19 @@
                 const bubbleTypeClass = message.sender === 'user' ? 'user-bubble' : 'bot-bubble';
                 msgBubble.className = `max-w-[85%] sm:max-w-md p-3 rounded-2xl relative group message-bubble ${bubbleTypeClass}`;
                 
+                if (message.imageURL) {
+                    const img = document.createElement('img');
+                    img.src = message.imageURL;
+                    img.className = 'rounded-md mb-2 max-w-full h-auto';
+                    img.onerror = () => { img.src = `https://placehold.co/400x400/374151/9ca3af?text=Image+Error`; };
+                    msgBubble.appendChild(img);
+                }
+
                 const textContainer = document.createElement('div');
                 textContainer.className = 'message-content';
                 const textElement = document.createElement('div');
-                textElement.className = 'font-devanagari text-lg';
+                // For generated images, use a smaller font for the prompt text
+                textElement.className = message.imageURL ? 'text-sm' : 'font-devanagari text-lg';
                 
                 // Convert Markdown bold to HTML bold and render HTML
                 let processedText = message.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
@@ -1377,7 +1630,7 @@
                 if (message.sender === 'bot' && !message.text.includes("kshamyatām")) {
                     controlsContainer.className = 'absolute -bottom-2 -right-2 flex gap-1';
                     const translateBtn = message.translation ? `<button data-translate-id="${message.id}" class="translate-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Translate message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="m7 2 3.5 3.5"/><path d="m14 18 3 3 3-3"/><path d="M17 10v11"/></svg></button>` : '';
-                    const speakBtn = `<button data-speak-id="${message.id}" class="speak-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Speak message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>`;
+                    const speakBtn = message.imageURL ? '' : `<button data-speak-id="${message.id}" class="speak-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Speak message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>`;
                     controlsHTML = `${bookmarkBtn}${translateBtn}<button data-copy-id="${message.id}" class="copy-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Copy message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></button>${speakBtn}`;
                 } else if (message.sender === 'user') {
                     controlsContainer.className = 'absolute -bottom-2 -left-2 flex gap-1';
@@ -1854,6 +2107,9 @@
                         case 'c':
                             exportChat();
                             break;
+                        case 'i':
+                            imageGenBtn.click();
+                            break;
                     }
                 }
             });
@@ -1874,6 +2130,10 @@
                                 loginScreen.classList.add('hidden');
                                 dashboardScreen.classList.remove('hidden');
                                 chatScreen.classList.add('hidden');
+
+                                if (!alarmIntervalId) {
+                                    alarmIntervalId = setInterval(checkTasksForAlarms, 60000); // Check every minute
+                                }
                                 
                                 unsubscribeUserDoc = window.firebase.onSnapshot(getUserDocRef(), (doc) => {
                                     if (doc.exists()) {
@@ -1924,6 +2184,10 @@
                                 unsubscribeChatDoc();
                                 unsubscribeChatsCol();
                                 unsubscribeProgress();
+                                if (alarmIntervalId) {
+                                    clearInterval(alarmIntervalId);
+                                    alarmIntervalId = null;
+                                }
                             }
                         });
                     } catch (e) {
@@ -1955,26 +2219,24 @@
             });
 
             // --- Voice Selection ---
-            const voices = [
-                { id: 'Achird', name: 'Achird', gender: 'Female', desc: 'Friendly' },
-                { id: 'Vindemiatrix', name: 'Vindemiatrix', gender: 'Female', desc: 'Gentle' },
-                { id: 'Leda', name: 'Leda', gender: 'Female', desc: 'Youthful' },
-                { id: 'Sadaltager', name: 'Sadaltager', gender: 'Male', desc: 'Knowledgeable' },
-                { id: 'Algenib', name: 'Algenib', gender: 'Male', desc: 'Gravelly' },
-                { id: 'Charon', name: 'Charon', gender: 'Male', desc: 'Informative' },
-            ];
-
+            let synthesisVoices = [];
             const populateVoiceOptions = () => {
+                synthesisVoices = window.speechSynthesis.getVoices();
                 voiceOptionsContainer.innerHTML = '';
-                voices.forEach(voice => {
-                    const isChecked = voice.id === selectedVoice;
+                if (synthesisVoices.length === 0) {
+                    voiceOptionsContainer.innerHTML = '<p class="text-gray-400 text-center col-span-full">No voices available in your browser.</p>';
+                    return;
+                }
+                
+                synthesisVoices.forEach(voice => {
+                    const isChecked = voice.name === selectedVoice;
                     const option = document.createElement('label');
-                    option.className = 'voice-option flex items-center p-3 bg-gray-700/50 rounded-lg border-2 border-transparent cursor-pointer hover:border-cyan-600 transition-colors';
+                    option.className = 'voice-option flex items-center p-3 bg-gray-700 rounded-lg border-2 border-transparent cursor-pointer hover:border-cyan-600 transition-colors';
                     option.innerHTML = `
-                        <input type="radio" name="voice" value="${voice.id}" class="hidden" ${isChecked ? 'checked' : ''}>
+                        <input type="radio" name="voice" value="${voice.name}" class="hidden" ${isChecked ? 'checked' : ''}>
                         <div class="flex-1">
-                            <div class="font-semibold text-white">${voice.name} (${voice.gender})</div>
-                            <div class="text-sm text-gray-400">${voice.desc}</div>
+                            <div class="font-semibold text-white">${voice.name}</div>
+                            <div class="text-sm text-gray-400">${voice.lang} ${voice.default ? '(default)' : ''}</div>
                         </div>
                         <div class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center">
                             ${isChecked ? '<div class="w-2.5 h-2.5 bg-cyan-500 rounded-full"></div>' : ''}
@@ -1983,6 +2245,10 @@
                     voiceOptionsContainer.appendChild(option);
                 });
             };
+
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populateVoiceOptions;
+            }
 
             if (voiceSelectBtn) voiceSelectBtn.addEventListener('click', () => {
                 populateVoiceOptions();
@@ -2028,7 +2294,86 @@
                 }
             });
             
-            // --- Task Scheduler ---
+            // --- Image Generation ---
+            const callImagenAPI = async (prompt) => {
+                const payload = { instances: [{ prompt: prompt }], parameters: { "sampleCount": 1 } };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`Imagen API request failed with status ${response.status}`);
+                    }
+                    const result = await response.json();
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    } else {
+                        throw new Error("Invalid response from Imagen API");
+                    }
+                } catch (error) {
+                    console.error("Image generation error:", error);
+                    return null;
+                }
+            };
+
+            if (imageGenBtn) imageGenBtn.addEventListener('click', () => {
+                if (!activeChatId) {
+                    // You could show a small toast/modal message here
+                    console.log("Please start a new chat first.");
+                    return;
+                }
+                imageGenModal.classList.remove('hidden');
+                imageGenPrompt.focus();
+            });
+            if (imageGenCloseBtn) imageGenCloseBtn.addEventListener('click', () => imageGenModal.classList.add('hidden'));
+            if (imageGenModal) imageGenModal.addEventListener('click', (e) => {
+                if (e.target === imageGenModal) imageGenModal.classList.add('hidden');
+            });
+
+            if (imageGenSubmitBtn) imageGenSubmitBtn.addEventListener('click', async () => {
+                const prompt = imageGenPrompt.value.trim();
+                if (!prompt) return;
+
+                imageGenSubmitBtn.disabled = true;
+                imageGenLoader.classList.remove('hidden');
+                imageGenLoader.classList.add('flex');
+
+                const imageUrl = await callImagenAPI(prompt);
+
+                imageGenSubmitBtn.disabled = false;
+                imageGenLoader.classList.add('hidden');
+                imageGenLoader.classList.remove('flex');
+                imageGenModal.classList.add('hidden');
+                imageGenPrompt.value = '';
+
+                if (imageUrl) {
+                    const newImageMessage = {
+                        id: Date.now(),
+                        text: `*Image generated with prompt: "${prompt}"*`,
+                        sender: 'bot',
+                        imageURL: imageUrl,
+                        translation: null
+                    };
+                    messages.push(newImageMessage);
+                    await saveChatHistory();
+                } else {
+                    const errorMessage = {
+                        id: Date.now(),
+                        text: "क्षमाम् अर्हामि, अहं चित्रं जनयितुं न शक्नोमि। कृपया पुनः प्रयतताम्।",
+                        sender: 'bot',
+                        translation: "I'm sorry, I couldn't generate the image. Please try again."
+                    };
+                    messages.push(errorMessage);
+                    await saveChatHistory();
+                }
+            });
+
+            // --- Task Scheduler & Alarms ---
             const populateTimezones = () => {
                 const timezones = [
                     'UTC', 'GMT', 'Europe/London', 'Europe/Paris', 'Europe/Berlin',
@@ -2043,14 +2388,81 @@
                 taskTimezone.innerHTML = timezones.map(tz => `<option value="${tz}" ${tz === userTimezone ? 'selected' : ''}>${tz}</option>`).join('');
             };
 
+            const requestNotificationPermission = async () => {
+                if (!('Notification' in window)) {
+                    console.error('This browser does not support desktop notification');
+                    return 'denied';
+                }
+                if (Notification.permission === 'granted') {
+                    return 'granted';
+                }
+                if (Notification.permission !== 'denied') {
+                    const permission = await Notification.requestPermission();
+                    return permission;
+                }
+                return 'denied';
+            };
+
+            const checkTasksForAlarms = async () => {
+                if (!userId || Notification.permission !== 'granted') return;
+
+                const now = window.firebase.Timestamp.now();
+                const tasksColRef = getTasksColRef();
+                const q = window.firebase.query(tasksColRef,
+                    window.firebase.where('alarmEnabled', '==', true),
+                    window.firebase.where('alarmTriggered', '==', false),
+                    window.firebase.where('taskDateTime', '<=', now)
+                );
+
+                try {
+                    const querySnapshot = await window.firebase.getDocs(q);
+
+                    if (!querySnapshot.empty && alarmSound.paused) {
+                        alarmSound.play().catch(e => console.error("Error playing alarm sound:", e));
+                    }
+
+                    querySnapshot.forEach(doc => {
+                        const task = doc.data();
+                        const notification = new Notification('Sanskrit Mitra Task Reminder', { 
+                            body: task.description, 
+                            icon: './favicon.ico',
+                            tag: doc.id // Use a tag to manage notifications
+                        });
+
+                        const stopAlarm = () => {
+                            if (!alarmSound.paused) {
+                                alarmSound.pause();
+                                alarmSound.currentTime = 0;
+                            }
+                        };
+
+                        notification.onclick = () => {
+                            stopAlarm();
+                            window.focus();
+                        };
+                        notification.onclose = stopAlarm;
+
+                        window.firebase.updateDoc(doc.ref, { alarmTriggered: true });
+                    });
+                } catch (error) { console.error("Error checking for task alarms:", error); }
+            };
+
             const saveTask = async () => {
                 const description = taskDescription.value.trim();
                 const date = taskDate.value;
                 const time = taskTime.value;
+                const alarmEnabled = document.getElementById('task-alarm').checked;
 
                 if (!description || !date || !time) {
                     alert('Please fill out all task fields.'); // Replace with a better modal later
                     return;
+                }
+
+                if (alarmEnabled && Notification.permission !== 'granted') {
+                    const permission = await requestNotificationPermission();
+                    if (permission !== 'granted') {
+                        console.warn('Notification permission denied. The alarm will be saved but not displayed.');
+                    }
                 }
 
                 const [year, month, day] = date.split('-');
@@ -2062,6 +2474,8 @@
                     taskDateTime: window.firebase.Timestamp.fromDate(taskDateTime),
                     timeZone: taskTimezone.value,
                     isCompleted: false,
+                    alarmEnabled: alarmEnabled,
+                    alarmTriggered: false,
                     createdAt: window.firebase.serverTimestamp()
                 };
 
@@ -2114,10 +2528,58 @@
 
 
             // --- Global Functions ---
-            window.handleStopAudio = () => { if (audioPlayer && audioPlayer.src && !audioPlayer.paused) { audioPlayer.pause(); audioPlayer.currentTime = 0; } playingMessageId = null; playingOverviewModuleId = null; window.updateAudioIcons(); updateOverviewIcons(); };
-            if (audioPlayer) audioPlayer.onended = window.handleStopAudio;
+            window.handleStopAudio = () => {
+                if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                playingMessageId = null;
+                window.updateAudioIcons();
+            };
             window.updateAudioIcons = () => { document.querySelectorAll('.speak-btn').forEach(btn => { const id = parseInt(btn.dataset.speakId); btn.innerHTML = id === playingMessageId ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; }); stopAudioContainer.innerHTML = ''; if (playingMessageId) { const stopBtn = document.createElement('button'); stopBtn.className = "p-1 rounded-full hover:bg-red-500/20 transition-colors"; stopBtn.ariaLabel = "Stop audio"; stopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>`; stopBtn.onclick = window.handleStopAudio; stopAudioContainer.appendChild(stopBtn); } };
-            window.handleSpeak = async (speakBtn) => { const messageId = parseInt(speakBtn.dataset.speakId); if (playingMessageId === messageId) { window.handleStopAudio(); return; } window.handleStopAudio(); const message = messages.find(m => m.id === messageId); if (!message) return; speakBtn.innerHTML = `<div class="w-4 h-4 border-2 border-gray-400 border-t-white rounded-full animate-spin"></div>`; const audioInfo = await callGeminiTTSAPI(message.text); if (audioInfo) { const sampleRate = parseInt(audioInfo.mimeType.match(/rate=(\d+)/)[1], 10); const pcmData = base64ToArrayBuffer(audioInfo.audioData); const pcm16 = new Int16Array(pcmData); const wavBlob = pcmToWav(pcm16, sampleRate); const audioUrl = URL.createObjectURL(wavBlob); audioPlayer.src = audioUrl; audioPlayer.play(); playingMessageId = messageId; window.updateAudioIcons(); } else { window.updateAudioIcons(); } };
+            window.handleSpeak = (speakBtn) => {
+                const messageId = parseInt(speakBtn.dataset.speakId);
+
+                if (window.speechSynthesis.speaking && playingMessageId === messageId) {
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                
+                const message = messages.find(m => m.id === messageId);
+                if (!message || message.imageURL) return;
+
+                const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+                const voice = window.speechSynthesis.getVoices().find(v => v.name === selectedVoice);
+                if (voice) {
+                    utterance.voice = voice;
+                } else {
+                    const sanskritVoice = window.speechSynthesis.getVoices().find(v => v.lang.startsWith('sa-IN'));
+                    if (sanskritVoice) utterance.voice = sanskritVoice;
+                }
+
+                utterance.onstart = () => {
+                    playingMessageId = messageId;
+                    window.updateAudioIcons();
+                };
+
+                utterance.onend = () => {
+                    playingMessageId = null;
+                    window.updateAudioIcons();
+                };
+                
+                utterance.onerror = (event) => {
+                    console.error('SpeechSynthesisUtterance.onerror', event);
+                    playingMessageId = null;
+                    window.updateAudioIcons();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            };
             window.handleCopyToClipboard = (copyBtn) => { const messageId = parseInt(copyBtn.dataset.copyId); const message = messages.find(m => m.id === messageId); if (!message) return; const textArea = document.createElement('textarea'); let textToCopy = message.text; if (message.translation) { textToCopy += `\n\n${message.translation}`; } textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 pointer-events-none"><polyline points="20 6 9 17 4 12"></polyline></svg>`; setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>`; }, 2000); } catch (err) { console.error('Failed to copy text: ', err); } document.body.removeChild(textArea); };
             window.handleTranslate = (translateBtn) => { const messageId = parseInt(translateBtn.dataset.translateId); const messageNode = document.getElementById(`message-${messageId}`); if (!messageNode) return; const translationContainer = messageNode.querySelector('.translation-content'); if (translationContainer) { translationContainer.classList.toggle('hidden'); } };
         
@@ -2702,11 +3164,15 @@
                             lessonItem.className = 'w-full text-left p-3 bg-gray-700 rounded-lg hover:bg-gray-600 flex justify-between items-center';
                             lessonItem.dataset.moduleId = moduleId;
                             lessonItem.dataset.lessonIndex = index;
-                            lessonItem.dataset.type = 'lesson'; // Add type
-                            lessonItem.innerHTML = `
-                                <span>${lesson.name}</span>
-                                ${isCompleted ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' : ''}
-                            `;
+                            lessonItem.dataset.type = 'lesson';
+
+                            let lessonHTML = `<span>${lesson.name}</span>`;
+                            if (isCompleted) {
+                                lessonHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                            } else if (lesson.url) {
+                                lessonHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`;
+                            }
+                            lessonItem.innerHTML = lessonHTML;
                             lessonSelectionList.appendChild(lessonItem);
                         });
                     }
@@ -2737,8 +3203,15 @@
                     if (type === 'module') {
                         openLessonSelectionModal(moduleId); // Re-open modal with lessons
                     } else if (type === 'lesson') {
-                        lessonSelectionModal.classList.add('hidden');
-                        openLessonModal(moduleId, parseInt(lessonIndex, 10));
+                        const module = modules[moduleId];
+                        const lesson = module.lessons[parseInt(lessonIndex, 10)];
+                        if (lesson.url) {
+                            window.open(lesson.url, '_blank');
+                            lessonSelectionModal.classList.add('hidden');
+                        } else {
+                            lessonSelectionModal.classList.add('hidden');
+                            openLessonModal(moduleId, parseInt(lessonIndex, 10));
+                        }
                     }
                 }
             });
@@ -2775,13 +3248,8 @@
 
         });
 
-        // --- Audio Processing Utilities ---
-        async function callGeminiTTSAPI(textToSpeak){const apiKey="";const apiUrl=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;const payload={contents:[{parts:[{text:textToSpeak}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:selectedVoice}}}}};try{const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!response.ok)throw new Error(`TTS API request failed with status ${response.status}`);const result=await response.json();const part=result?.candidates?.[0]?.content?.parts?.[0];if(part?.inlineData?.data&&part?.inlineData?.mimeType?.startsWith("audio/")){return{audioData:part.inlineData.data,mimeType:part.inlineData.mimeType};}return null;}catch(error){console.error("TTS Generation Error:",error);return null;}}
-        function base64ToArrayBuffer(base64){const binaryString=window.atob(base64);const len=binaryString.length;const bytes=new Uint8Array(len);for(let i=0;i<len;i++){bytes[i]=binaryString.charCodeAt(i);}return bytes.buffer;}
-        function writeString(view,offset,string){for(let i=0;i<string.length;i++){view.setUint8(offset+i,string.charCodeAt(i));}}
-        function pcmToWav(pcmData,sampleRate){const numChannels=1,bitsPerSample=16;const blockAlign=numChannels*bitsPerSample/8;const byteRate=sampleRate*blockAlign;const dataSize=pcmData.length*pcmData.BYTES_PER_ELEMENT;const buffer=new ArrayBuffer(44+dataSize);const view=new DataView(buffer);writeString(view,0,'RIFF');view.setUint32(4,36+dataSize,true);writeString(view,8,'WAVE');writeString(view,12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,numChannels,true);view.setUint32(24,sampleRate,true);view.setUint32(28,byteRate,true);view.setUint16(32,blockAlign,true);view.setUint16(34,bitsPerSample,true);writeString(view,36,'data');view.setUint32(40,dataSize,true);for(let i=0;i<pcmData.length;i++){view.setInt16(44+i*2,pcmData[i],true);}return new Blob([view],{type:'audio/wav'});}
-    
     </script>
 
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
