@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -9,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="./public/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/index.css">
 
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -527,6 +529,10 @@
                             <!-- Timezones will be populated here -->
                         </select>
                     </div>
+                    <div class="flex items-center pt-2">
+                        <input id="task-alarm" type="checkbox" checked class="h-4 w-4 rounded border-gray-600 text-cyan-600 focus:ring-cyan-500 bg-gray-700">
+                        <label for="task-alarm" class="ml-3 block text-sm font-medium text-gray-300">Enable Alarm (सूचना)</label>
+                    </div>
                 </div>
                 <div class="mt-6 text-right">
                     <button id="save-task-btn" class="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:bg-cyan-500 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
@@ -649,7 +655,10 @@
             </div>
         </div>
     </div>
-<audio id="audio-player" class="hidden"></audio>
+    <audio id="audio-player" class="hidden"></audio>
+    <audio id="alarm-sound" loop class="hidden">
+        <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+    </audio>
     <script>
         let selectedVoice = 'Achird'; // Default voice
 
@@ -747,6 +756,7 @@
             const toolsMenuBtn = document.getElementById('tools-menu-btn');
             const toolsMenuDropdown = document.getElementById('tools-menu-dropdown');
             const exportChatBtn = document.getElementById('export-chat-btn');
+            const alarmSound = document.getElementById('alarm-sound');
 
             // --- State Management ---
             let isLoading = false;
@@ -764,6 +774,7 @@
             let learningProgress = {};
             let currentQuiz = {};
             let activeCourseId = 'course1';
+            let alarmIntervalId = null;
             
             // --- Firebase State ---
             let db, auth, userId, storage;
@@ -2078,6 +2089,10 @@
                                 loginScreen.classList.add('hidden');
                                 dashboardScreen.classList.remove('hidden');
                                 chatScreen.classList.add('hidden');
+
+                                if (!alarmIntervalId) {
+                                    alarmIntervalId = setInterval(checkTasksForAlarms, 60000); // Check every minute
+                                }
                                 
                                 unsubscribeUserDoc = window.firebase.onSnapshot(getUserDocRef(), (doc) => {
                                     if (doc.exists()) {
@@ -2128,6 +2143,10 @@
                                 unsubscribeChatDoc();
                                 unsubscribeChatsCol();
                                 unsubscribeProgress();
+                                if (alarmIntervalId) {
+                                    clearInterval(alarmIntervalId);
+                                    alarmIntervalId = null;
+                                }
                             }
                         });
                     } catch (e) {
@@ -2313,7 +2332,7 @@
                 }
             });
 
-            // --- Task Scheduler ---
+            // --- Task Scheduler & Alarms ---
             const populateTimezones = () => {
                 const timezones = [
                     'UTC', 'GMT', 'Europe/London', 'Europe/Paris', 'Europe/Berlin',
@@ -2328,14 +2347,81 @@
                 taskTimezone.innerHTML = timezones.map(tz => `<option value="${tz}" ${tz === userTimezone ? 'selected' : ''}>${tz}</option>`).join('');
             };
 
+            const requestNotificationPermission = async () => {
+                if (!('Notification' in window)) {
+                    console.error('This browser does not support desktop notification');
+                    return 'denied';
+                }
+                if (Notification.permission === 'granted') {
+                    return 'granted';
+                }
+                if (Notification.permission !== 'denied') {
+                    const permission = await Notification.requestPermission();
+                    return permission;
+                }
+                return 'denied';
+            };
+
+            const checkTasksForAlarms = async () => {
+                if (!userId || Notification.permission !== 'granted') return;
+
+                const now = window.firebase.Timestamp.now();
+                const tasksColRef = getTasksColRef();
+                const q = window.firebase.query(tasksColRef,
+                    window.firebase.where('alarmEnabled', '==', true),
+                    window.firebase.where('alarmTriggered', '==', false),
+                    window.firebase.where('taskDateTime', '<=', now)
+                );
+
+                try {
+                    const querySnapshot = await window.firebase.getDocs(q);
+
+                    if (!querySnapshot.empty && alarmSound.paused) {
+                        alarmSound.play().catch(e => console.error("Error playing alarm sound:", e));
+                    }
+
+                    querySnapshot.forEach(doc => {
+                        const task = doc.data();
+                        const notification = new Notification('Sanskrit Mitra Task Reminder', { 
+                            body: task.description, 
+                            icon: './favicon.ico',
+                            tag: doc.id // Use a tag to manage notifications
+                        });
+
+                        const stopAlarm = () => {
+                            if (!alarmSound.paused) {
+                                alarmSound.pause();
+                                alarmSound.currentTime = 0;
+                            }
+                        };
+
+                        notification.onclick = () => {
+                            stopAlarm();
+                            window.focus();
+                        };
+                        notification.onclose = stopAlarm;
+
+                        window.firebase.updateDoc(doc.ref, { alarmTriggered: true });
+                    });
+                } catch (error) { console.error("Error checking for task alarms:", error); }
+            };
+
             const saveTask = async () => {
                 const description = taskDescription.value.trim();
                 const date = taskDate.value;
                 const time = taskTime.value;
+                const alarmEnabled = document.getElementById('task-alarm').checked;
 
                 if (!description || !date || !time) {
                     alert('Please fill out all task fields.'); // Replace with a better modal later
                     return;
+                }
+
+                if (alarmEnabled && Notification.permission !== 'granted') {
+                    const permission = await requestNotificationPermission();
+                    if (permission !== 'granted') {
+                        console.warn('Notification permission denied. The alarm will be saved but not displayed.');
+                    }
                 }
 
                 const [year, month, day] = date.split('-');
@@ -2347,6 +2433,8 @@
                     taskDateTime: window.firebase.Timestamp.fromDate(taskDateTime),
                     timeZone: taskTimezone.value,
                     isCompleted: false,
+                    alarmEnabled: alarmEnabled,
+                    alarmTriggered: false,
                     createdAt: window.firebase.serverTimestamp()
                 };
 
@@ -3112,3 +3200,4 @@
 
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
