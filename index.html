@@ -18,6 +18,12 @@
         // Set worker source for pdf.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js`;
     </script>
+    <!-- Mammoth.js for DOCX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- SheetJS for XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JSZip for PPTX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .font-devanagari { font-family: 'Noto Sans Devanagari', sans-serif; }
@@ -56,6 +62,9 @@
         .voice-option:has(input:checked) {
             border-color: #0891b2; /* cyan-600 */
             background-color: rgba(14, 165, 233, 0.1);
+        }
+        .voice-option:has(input:checked) .check-indicator {
+            transform: scale(1);
         }
         
         /* --- Modern UI Enhancements --- */
@@ -188,6 +197,9 @@
         .light #confirmation-modal .text-white, .light #voice-modal .text-white, .light #lesson-selection-modal .text-white, .light #lesson-modal .text-white, .light #quiz-modal .text-white, .light #quiz-setup-modal .text-white, .light #image-gen-modal .text-white, .light #achievements-modal .text-white, .light #task-scheduler-modal .text-white { color: #1f2937; }
         .light .voice-option { background-color: #f3f4f6; }
         .light .voice-option:has(input:checked) { background-color: rgba(14, 165, 233, 0.1); }
+        .light .voice-option:has(input:checked) .check-indicator {
+            transform: scale(1);
+        }
         .light .bg-gray-700\/50 { background-color: rgba(229, 231, 235, 0.5); }
         .light .hover\:bg-red-500\/10:hover { background-color: rgba(239, 68, 68, 0.1); }
         .light .bg-gray-900\/50 { background-color: rgba(255, 255, 255, 0.8); }
@@ -342,6 +354,8 @@
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" data-course-id="course1">SAN Course I</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" data-course-id="course2">SAN Course II</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" data-course-id="course3">SAN Course III</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" data-course-id="course4">SAN Course IV</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" data-course-id="course5">SAN Course V</a>
                             </div>
                         </div>
 
@@ -386,7 +400,7 @@
                     </div>
                     <div class="flex items-center bg-gray-800 rounded-full p-1 sm:p-2 gap-1 sm:gap-2">
                         <!-- Add Files Button -->
-                        <input type="file" id="file-input" class="hidden" accept="image/jpeg, image/png, image/jpg, application/pdf">
+                        <input type="file" id="file-input" class="hidden" accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation">
                         <button id="file-btn" title="Add Files" class="p-2 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" aria-label="Add Files">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         </button>
@@ -411,9 +425,9 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 12h8l-3-3 3-3h-8V4h10v16H12z"/></svg>
                                         <span>My Achievements</span>
                                     </button>
-                                    <button id="image-gen-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.3 0 .5.1.8.3l4.5 3.5c.2.2.3.4.3.7v9c0 .3-.1.5-.3.8l-4.5 3.5c-.3.2-.5.3-.8.3s-.5-.1-.8-.3L6.7 20.3c-.2-.2-.3-.4-.3-.7v-9c0-.3.1-.5.3-.8l4.5-3.5c.3-.2.5-.3.8-.3z"/><path d="m9.5 14.5 2.5-3 2.5 3"/><path d="M12 11.5V16"/><path d="m8.5 8 2 2.5 2-2.5"/></svg>
-                                        <span>Generate Image</span>
+                                    <button id="voice-settings-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                                       <span>Voice Settings</span>
                                     </button>
                                     <button id="deep-think-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7v0A2.5 2.5 0 0 1 7 9.5v0A2.5 2.5 0 0 1 4.5 12v0A2.5 2.5 0 0 1 7 14.5v0A2.5 2.5 0 0 1 9.5 17v0A2.5 2.5 0 0 1 12 19.5v0A2.5 2.5 0 0 1 14.5 17v0A2.5 2.5 0 0 1 17 14.5v0A2.5 2.5 0 0 1 19.5 12v0A2.5 2.5 0 0 1 17 9.5v0A2.5 2.5 0 0 1 14.5 7v0A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 2Z"/><path d="M12 12a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 17v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 12Z"/><path d="M12 4.5a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 9.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 4.5Z"/><path d="M17 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0a2.5 2.5 0 0 0-2.5-2.5Z"/><path d="M7 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 7 9.5Z"/></svg>
@@ -435,6 +449,24 @@
 
                         <!-- Right side buttons -->
                         <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                            <div class="relative">
+                                <button id="lang-select-btn" title="Select Recognition Language" class="p-2 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors text-xs font-bold w-8 h-8 flex items-center justify-center">EN</button>
+                                <div id="lang-select-dropdown" class="hidden absolute bottom-full mb-2 right-0 w-40 bg-gray-900 border border-cyan-500/20 rounded-lg shadow-lg z-10 p-1 max-h-60 overflow-y-auto custom-scrollbar">
+                                    <button data-lang="en-US" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">English</button>
+                                    <div class="my-1 border-t border-gray-700"></div>
+                                    <button data-lang="sa-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Sanskrit</button>
+                                    <button data-lang="bn-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Bengali</button>
+                                    <button data-lang="hi-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Hindi</button>
+                                    <button data-lang="kn-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Kannada</button>
+                                    <button data-lang="ml-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Malayalam</button>
+                                    <button data-lang="mr-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Marathi</button>
+                                    <button data-lang="or-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Odia</button>
+                                    <button data-lang="pa-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Punjabi</button>
+                                    <button data-lang="ta-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Tamil</button>
+                                    <button data-lang="te-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Telugu</button>
+                                    <button data-lang="ur-IN" class="lang-option w-full text-left p-2 text-sm text-gray-300 rounded-md hover:bg-gray-700">Urdu</button>
+                                </div>
+                            </div>
                             <button id="mic-btn" title="Use Microphone" class="p-2 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors" aria-label="Use microphone"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg></button>
                             <button id="regenerate-btn" title="Regenerate Response" class="p-2 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white disabled:text-gray-600 disabled:bg-transparent disabled:cursor-not-allowed transition-colors hidden" aria-label="Regenerate response" disabled><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
                             <button id="send-btn" title="Send Message" class="p-2 bg-cyan-600 rounded-lg hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors" aria-label="Send message" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg></button>
@@ -464,14 +496,14 @@
 
         <!-- Voice Selection Modal -->
         <div id="voice-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
-            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-auto">
-                <div class="flex justify-between items-center mb-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
                     <h3 class="text-xl font-bold text-cyan-400">Select a Voice</h3>
                     <button id="voice-modal-close-btn" class="p-1 rounded-full hover:bg-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                <div id="voice-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div id="voice-options-container" class="space-y-2 overflow-y-auto custom-scrollbar flex-grow pr-2">
                     <!-- Voice options will be populated here -->
                 </div>
             </div>
@@ -528,10 +560,6 @@
                         <select id="task-timezone" class="task-input w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
                             <!-- Timezones will be populated here -->
                         </select>
-                    </div>
-                    <div class="flex items-center pt-2">
-                        <input id="task-alarm" type="checkbox" checked class="h-4 w-4 rounded border-gray-600 text-cyan-600 focus:ring-cyan-500 bg-gray-700">
-                        <label for="task-alarm" class="ml-3 block text-sm font-medium text-gray-300">Enable Alarm (सूचना)</label>
                     </div>
                 </div>
                 <div class="mt-6 text-right">
@@ -656,9 +684,6 @@
         </div>
     </div>
     <audio id="audio-player" class="hidden"></audio>
-    <audio id="alarm-sound" loop class="hidden">
-        <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
-    </audio>
     <script>
         let selectedVoice = 'Achird'; // Default voice
 
@@ -691,13 +716,15 @@
             const removeFileBtn = document.getElementById('remove-file-btn');
             const regenerateBtn = document.getElementById('regenerate-btn');
             const clearInputBtn = document.getElementById('clear-input-btn');
+            const langSelectBtn = document.getElementById('lang-select-btn');
+            const langSelectDropdown = document.getElementById('lang-select-dropdown');
             const audioPlayer = document.getElementById('audio-player');
             const stopAudioContainer = document.getElementById('stop-audio-container');
             const viewModeIndicator = document.getElementById('view-mode-indicator');
             const confirmationModal = document.getElementById('confirmation-modal');
             const modalConfirmBtn = document.getElementById('modal-confirm-btn');
             const modalCancelBtn = document.getElementById('modal-cancel-btn');
-            const voiceSelectBtn = document.getElementById('voice-select-btn');
+            const voiceSettingsBtn = document.getElementById('voice-settings-btn');
             const voiceModal = document.getElementById('voice-modal');
             const voiceModalCloseBtn = document.getElementById('voice-modal-close-btn');
             const voiceOptionsContainer = document.getElementById('voice-options-container');
@@ -756,7 +783,6 @@
             const toolsMenuBtn = document.getElementById('tools-menu-btn');
             const toolsMenuDropdown = document.getElementById('tools-menu-dropdown');
             const exportChatBtn = document.getElementById('export-chat-btn');
-            const alarmSound = document.getElementById('alarm-sound');
 
             // --- State Management ---
             let isLoading = false;
@@ -767,6 +793,7 @@
             let bookmarkedMessageIds = new Set();
             let isRecognizing = false;
             let currentFile = null;
+            let recognitionLang = 'en-US'; // Default recognition language
             let abortController;
             let activeChatId = null;
             let currentModalAction = null;
@@ -774,7 +801,6 @@
             let learningProgress = {};
             let currentQuiz = {};
             let activeCourseId = 'course1';
-            let alarmIntervalId = null;
             
             // --- Firebase State ---
             let db, auth, userId, storage;
@@ -789,13 +815,48 @@
             if (SpeechRecognition) {
                 recognition = new SpeechRecognition();
                 recognition.continuous = false;
-                recognition.lang = 'en-US';
+                // recognition.lang will be set dynamically
                 recognition.interimResults = false;
                 recognition.maxAlternatives = 1;
                 recognition.onstart = () => { isRecognizing = true; micBtn.classList.add('text-red-500', 'mic-listening'); };
-                recognition.onresult = (event) => { inputField.value = event.results[0][0].transcript; updateInputButtons(); };
+                recognition.onresult = (event) => {
+                    let transcript = event.results[0][0].transcript;
+                    // Capitalize the first letter for a better-looking prompt
+                    if (transcript.length > 0) {
+                        transcript = transcript.charAt(0).toUpperCase() + transcript.slice(1);
+                    }
+                    inputField.value = transcript;
+                    updateInputButtons();
+                };
                 recognition.onend = () => { isRecognizing = false; micBtn.classList.remove('text-red-500', 'mic-listening'); };
-                recognition.onerror = (event) => { console.error('Speech recognition error:', event.error); isRecognizing = false; micBtn.classList.remove('text-red-500', 'mic-listening'); };
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+
+                    // Don't show an alert for 'aborted' as it's a normal way to stop recognition.
+                    if (event.error === 'aborted') {
+                        isRecognizing = false; micBtn.classList.remove('text-red-500', 'mic-listening');
+                        return;
+                    }
+
+                    let errorMessage = `An unexpected error occurred: ${event.error}.`;
+                    switch (event.error) {
+                        case 'no-speech':
+                            errorMessage = 'No speech was detected. Please make sure you are speaking clearly.';
+                            break;
+                        case 'audio-capture':
+                            errorMessage = 'Audio capture failed. Please check if your microphone is working correctly.';
+                            break;
+                        case 'not-allowed':
+                        case 'service-not-allowed':
+                            errorMessage = 'Microphone access was denied. Please allow microphone access in your browser settings to use this feature.';
+                            break;
+                        case 'language-not-supported':
+                            errorMessage = `The selected language (${recognitionLang}) is not supported by your browser. Please select another language.`;
+                            break;
+                    }
+                    alert(errorMessage);
+                    isRecognizing = false; micBtn.classList.remove('text-red-500', 'mic-listening');
+                };
             } else {
                 console.log('Speech Recognition not supported.');
                 micBtn.style.display = 'none';
@@ -1280,6 +1341,14 @@
                 course3: {
                     name: "SAN Course III",
                     modules: ['vedanta', 'sankhya-yoga', 'advanced-vyakarana', 'epigraphy-manuscriptology', 'reading-practice-3', 'conclusion-course-3', 'external-resources']
+                },
+                course4: {
+                    name: "SAN Course IV",
+                    modules: []
+                },
+                course5: {
+                    name: "SAN Course V",
+                    modules: []
                 }
             };
             
@@ -1290,8 +1359,7 @@
                 'panditah': { name: 'पण्डितः', desc: 'Score 90%+ on a quiz', icon: '🏆' },
                 'vagdevi_krpa': { name: 'वाग्देवी कृपा', desc: 'Start a 3-day learning streak', icon: '🔥' },
                 'sarasvati_putrah': { name: 'सरस्वती पुत्रः', desc: 'Achieve a 7-day learning streak', icon: '🌟' },
-                'mitra_sambhasanam': { name: 'मित्र सम्भाषणम्', desc: 'Have a chat with over 20 messages', icon: '💬' },
-                'citrakarah': { name: 'चित्रकारः', desc: 'Generate your first image', icon: '🎨' }
+                'mitra_sambhasanam': { name: 'मित्र सम्भाषणम्', desc: 'Have a chat with over 20 messages', icon: '💬' }
             };
 
 
@@ -1584,24 +1652,15 @@
                 msgWrapper.id = `message-${message.id}`;
                 
                 let avatar = message.sender === 'bot' ? `<div class="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">म</div>` : '';
-
                 const msgBubble = document.createElement('div');
                 const bubbleTypeClass = message.sender === 'user' ? 'user-bubble' : 'bot-bubble';
                 msgBubble.className = `max-w-[85%] sm:max-w-md p-3 rounded-2xl relative group message-bubble ${bubbleTypeClass}`;
                 
-                if (message.imageURL) {
-                    const img = document.createElement('img');
-                    img.src = message.imageURL;
-                    img.className = 'rounded-md mb-2 max-w-full h-auto';
-                    img.onerror = () => { img.src = `https://placehold.co/400x400/374151/9ca3af?text=Image+Error`; };
-                    msgBubble.appendChild(img);
-                }
-
                 const textContainer = document.createElement('div');
                 textContainer.className = 'message-content';
                 const textElement = document.createElement('div');
                 // For generated images, use a smaller font for the prompt text
-                textElement.className = message.imageURL ? 'text-sm' : 'font-devanagari text-lg';
+                textElement.className = 'font-devanagari text-lg';
                 
                 // Convert Markdown bold to HTML bold and render HTML
                 let processedText = message.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
@@ -1630,7 +1689,7 @@
                 if (message.sender === 'bot' && !message.text.includes("kshamyatām")) {
                     controlsContainer.className = 'absolute -bottom-2 -right-2 flex gap-1';
                     const translateBtn = message.translation ? `<button data-translate-id="${message.id}" class="translate-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Translate message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="m7 2 3.5 3.5"/><path d="m14 18 3 3 3-3"/><path d="M17 10v11"/></svg></button>` : '';
-                    const speakBtn = message.imageURL ? '' : `<button data-speak-id="${message.id}" class="speak-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Speak message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>`;
+                    const speakBtn = `<button data-speak-id="${message.id}" class="speak-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Speak message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>`;
                     controlsHTML = `${bookmarkBtn}${translateBtn}<button data-copy-id="${message.id}" class="copy-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Copy message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></button>${speakBtn}`;
                 } else if (message.sender === 'user') {
                     controlsContainer.className = 'absolute -bottom-2 -left-2 flex gap-1';
@@ -1696,12 +1755,9 @@
                     let fileInfo = null;
 
                     if (currentFile) {
-                        if (currentFile.type === 'application/pdf') {
-                            userPrompt = `Based on the following document text: """${currentFile.extractedText}"""\n\nUser Question: ${text || 'Please summarize this document.'}`;
-                            fileInfo = { fileName: currentFile.file.name, type: 'PDF' };
-                        } else if (currentFile.type.startsWith('image/')) {
-                            fileInfo = { image: currentFile, imageURL: currentFile.url };
-                        }
+                        // This now handles pdf, docx, xlsx, pptx
+                        userPrompt = `Based on the following document text: """${currentFile.extractedText}"""\n\nUser Question: ${text || 'Please summarize this document.'}`;
+                        fileInfo = { fileName: currentFile.file.name, type: currentFile.file.type };
                     }
 
                     const newUserMessage = { 
@@ -1719,7 +1775,7 @@
                     filePreviewContent.innerHTML = '';
                     viewModeIndicator.textContent = 'Your AI Sanskrit Companion'; // Reset indicator
                     updateInputButtons();
-                    getBotResponse(userPrompt, fileInfo?.image);
+                    getBotResponse(userPrompt);
                 }
             };
 
@@ -1741,7 +1797,7 @@
                 return result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
             }
 
-            const getBotResponse = async (promptOverride = null, imageFile = null) => {
+            const getBotResponse = async (promptOverride = null) => {
                 setLoadingState(true, 'typing');
                 abortController = new AbortController();
 
@@ -1767,30 +1823,13 @@
 
                 messages.forEach(msg => {
                     const role = msg.sender === 'user' ? 'user' : 'model';
-                    const parts = [{ text: msg.text }];
-                    if (msg.image) {
-                        parts.push({
-                            inlineData: {
-                                mimeType: msg.image.type,
-                                data: msg.image.data.split(',')[1]
-                            }
-                        });
-                    }
-                    chatHistory.push({ role, parts });
+                    chatHistory.push({ role, parts: [{ text: msg.text }] });
                 });
 
                 // Use the last message as the prompt if no override is given
                 const lastMessage = chatHistory[chatHistory.length - 1];
                 if (promptOverride) {
                     lastMessage.parts[0].text = promptOverride;
-                }
-                if (imageFile) {
-                    lastMessage.parts.push({
-                        inlineData: {
-                            mimeType: imageFile.type,
-                            data: imageFile.data.split(',')[1]
-                        }
-                    });
                 }
                 
                 try {
@@ -1989,7 +2028,14 @@
             if (clearInputBtn) clearInputBtn.addEventListener('click', () => { inputField.value = ''; updateInputButtons(); inputField.focus(); });
             
             if (SpeechRecognition && micBtn) {
-                micBtn.addEventListener('click', () => { isRecognizing ? recognition.stop() : recognition.start(); });
+                micBtn.addEventListener('click', () => { 
+                    if (isRecognizing) {
+                        recognition.stop();
+                    } else {
+                        recognition.lang = recognitionLang; // Set language before starting
+                        recognition.start();
+                    }
+                });
             }
 
             if (fileBtn) fileBtn.addEventListener('click', () => fileInput.click());
@@ -2002,16 +2048,7 @@
                 updateInputButtons();
 
                 try {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const base64Data = e.target.result;
-                            currentFile = { file: file, data: base64Data, type: file.type };
-                            filePreviewContent.innerHTML = `<img class="w-20 h-20 object-cover rounded-md" src="${base64Data}"> <span class="text-sm text-gray-300 truncate">${file.name}</span>`;
-                            updateInputButtons();
-                        };
-                        reader.readAsDataURL(file);
-                    } else if (file.type === 'application/pdf') {
+                    if (file.type === 'application/pdf') {
                         const reader = new FileReader();
                         reader.onload = async (e) => {
                             const typedarray = new Uint8Array(e.target.result);
@@ -2025,6 +2062,68 @@
                             currentFile = { file: file, type: file.type, extractedText: fullText };
                             filePreviewContent.innerHTML = `<div class="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg></div><span class="text-sm text-gray-300 truncate">${file.name}</span>`;
                             updateInputButtons();
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') { // docx
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            try {
+                                const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+                                currentFile = { file: file, type: file.type, extractedText: result.value };
+                                filePreviewContent.innerHTML = `<div class="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg></div><span class="text-sm text-gray-300 truncate">${file.name}</span>`;
+                                updateInputButtons();
+                            } catch (err) {
+                                console.error("Error processing DOCX file:", err);
+                                filePreviewContent.innerHTML = `<span class="text-sm text-red-400">Error processing DOCX.</span>`;
+                            }
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') { // xlsx
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, {type: 'array'});
+                                let fullText = '';
+                                workbook.SheetNames.forEach(sheetName => {
+                                    fullText += `Sheet: ${sheetName}\n\n`;
+                                    const worksheet = workbook.Sheets[sheetName];
+                                    fullText += XLSX.utils.sheet_to_csv(worksheet) + '\n\n';
+                                });
+                                currentFile = { file: file, type: file.type, extractedText: fullText.trim() };
+                                filePreviewContent.innerHTML = `<div class="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg></div><span class="text-sm text-gray-300 truncate">${file.name}</span>`;
+                                updateInputButtons();
+                            } catch (err) {
+                                console.error("Error processing XLSX file:", err);
+                                filePreviewContent.innerHTML = `<span class="text-sm text-red-400">Error processing XLSX.</span>`;
+                            }
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else if (file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') { // pptx
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            try {
+                                const zip = await JSZip.loadAsync(e.target.result);
+                                const slideFiles = [];
+                                zip.forEach((relativePath, file) => {
+                                    if (relativePath.startsWith('ppt/slides/slide') && relativePath.endsWith('.xml')) {
+                                        slideFiles.push({path: relativePath, file: file.async('string')});
+                                    }
+                                });
+                                slideFiles.sort((a, b) => parseInt(a.path.match(/slide(\d+)\.xml/)[1]) - parseInt(b.path.match(/slide(\d+)\.xml/)[1]));
+                                const slideContents = await Promise.all(slideFiles.map(f => f.file));
+                                let fullText = slideContents.map((xml, index) => {
+                                    const textNodes = xml.match(/<a:t>.*?<\/a:t>/g) || [];
+                                    const slideText = textNodes.map(node => node.replace(/<a:t>(.*?)<\/a:t>/, '$1').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')).join(' ');
+                                    return `Slide ${index + 1}:\n${slideText}`;
+                                }).join('\n\n');
+                                currentFile = { file: file, type: file.type, extractedText: fullText.trim() };
+                                filePreviewContent.innerHTML = `<div class="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg></div><span class="text-sm text-gray-300 truncate">${file.name}</span>`;
+                                updateInputButtons();
+                            } catch (err) {
+                                console.error("Error processing PPTX file:", err);
+                                filePreviewContent.innerHTML = `<span class="text-sm text-red-400">Error processing PPTX.</span>`;
+                            }
                         };
                         reader.readAsArrayBuffer(file);
                     } else {
@@ -2058,6 +2157,28 @@
                 }
             });
             
+            if (langSelectBtn) {
+                langSelectBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    langSelectDropdown.classList.toggle('hidden');
+                });
+            }
+
+            if (langSelectDropdown) {
+                langSelectDropdown.addEventListener('click', async (e) => {
+                    const button = e.target.closest('.lang-option');
+                    if (button) {
+                        recognitionLang = button.dataset.lang;
+                        langSelectBtn.textContent = recognitionLang.split('-')[0].toUpperCase();
+                        langSelectDropdown.classList.add('hidden');
+                        // Persist the setting
+                        if (userId) {
+                            await window.firebase.updateDoc(getUserDocRef(), { recognitionLang: recognitionLang });
+                        }
+                    }
+                });
+            }
+
             if (messagesContainer) messagesContainer.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
@@ -2080,10 +2201,17 @@
                 });
             }
             document.addEventListener('click', (e) => {
-                if (toolsMenuDropdown && !toolsMenuDropdown.classList.contains('hidden')) {
-                    if (!toolsMenuBtn.contains(e.target) && !toolsMenuDropdown.contains(e.target)) {
-                        toolsMenuDropdown.classList.add('hidden');
-                    }
+                // Close tools menu
+                if (toolsMenuDropdown && !toolsMenuDropdown.classList.contains('hidden') && !toolsMenuBtn.contains(e.target) && !toolsMenuDropdown.contains(e.target)) {
+                    toolsMenuDropdown.classList.add('hidden');
+                }
+                // Close language selection menu
+                if (langSelectDropdown && !langSelectDropdown.classList.contains('hidden') && !langSelectBtn.contains(e.target) && !langSelectDropdown.contains(e.target)) {
+                    langSelectDropdown.classList.add('hidden');
+                }
+                // Close dashboard course selection menu
+                if (dashboardMenuDropdown && !dashboardMenuDropdown.classList.contains('hidden') && !dashboardMenuBtn.contains(e.target) && !dashboardMenuDropdown.contains(e.target)) {
+                    dashboardMenuDropdown.classList.add('hidden');
                 }
             });
             if (toolsMenuDropdown) {
@@ -2132,23 +2260,21 @@
                                 loginScreen.classList.add('hidden');
                                 dashboardScreen.classList.remove('hidden');
                                 chatScreen.classList.add('hidden');
-
-                                if (!alarmIntervalId) {
-                                    alarmIntervalId = setInterval(checkTasksForAlarms, 60000); // Check every minute
-                                }
                                 
                                 unsubscribeUserDoc = window.firebase.onSnapshot(getUserDocRef(), (doc) => {
                                     if (doc.exists()) {
                                         const data = doc.data();
                                         activeChatId = data.activeChatId || null;
                                         selectedVoice = data.selectedVoice || 'Achird';
+                                        recognitionLang = data.recognitionLang || 'en-US';
+                                        if (langSelectBtn) langSelectBtn.textContent = recognitionLang.split('-')[0].toUpperCase();
                                         activeCourseId = data.activeCourseId || 'course1';
                                         applyTheme(data.theme || 'dark');
                                         listenForActiveChat(activeChatId);
                                         listenForChatHistoryList();
                                         initDashboard();
                                     } else {
-                                        window.firebase.setDoc(getUserDocRef(), { uid: userId, selectedVoice: 'Achird', theme: 'dark', activeCourseId: 'course1' });
+                                        window.firebase.setDoc(getUserDocRef(), { uid: userId, selectedVoice: 'Achird', theme: 'dark', activeCourseId: 'course1', recognitionLang: 'en-US' });
                                         activeChatId = null;
                                         listenForActiveChat(null);
                                         listenForChatHistoryList();
@@ -2186,10 +2312,6 @@
                                 unsubscribeChatDoc();
                                 unsubscribeChatsCol();
                                 unsubscribeProgress();
-                                if (alarmIntervalId) {
-                                    clearInterval(alarmIntervalId);
-                                    alarmIntervalId = null;
-                                }
                             }
                         });
                     } catch (e) {
@@ -2232,27 +2354,58 @@
                 
                 synthesisVoices.forEach(voice => {
                     const isChecked = voice.name === selectedVoice;
-                    const option = document.createElement('label');
-                    option.className = 'voice-option flex items-center p-3 bg-gray-700 rounded-lg border-2 border-transparent cursor-pointer hover:border-cyan-600 transition-colors';
-                    option.innerHTML = `
-                        <input type="radio" name="voice" value="${voice.name}" class="hidden" ${isChecked ? 'checked' : ''}>
-                        <div class="flex-1">
-                            <div class="font-semibold text-white">${voice.name}</div>
-                            <div class="text-sm text-gray-400">${voice.lang} ${voice.default ? '(default)' : ''}</div>
-                        </div>
-                        <div class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center">
-                            ${isChecked ? '<div class="w-2.5 h-2.5 bg-cyan-500 rounded-full"></div>' : ''}
-                        </div>
+                    const optionWrapper = document.createElement('div');
+                    // Using a unique ID for each radio and associating it with the label
+                    const voiceId = `voice-${voice.name.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    optionWrapper.innerHTML = `
+                        <input type="radio" name="voice" value="${voice.name}" class="hidden" id="${voiceId}" ${isChecked ? 'checked' : ''}>
+                        <label for="${voiceId}" class="voice-option flex items-center p-3 bg-gray-700 rounded-lg border-2 border-transparent cursor-pointer hover:border-cyan-500 transition-all duration-200">
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center mr-4 flex-shrink-0">
+                                <div class="check-indicator w-2.5 h-2.5 bg-cyan-500 rounded-full transform scale-0 transition-transform duration-200"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-semibold text-white">${voice.name}</div>
+                                <div class="text-sm text-gray-400">${voice.lang} ${voice.default ? '(default)' : ''}</div>
+                            </div>
+                            <button class="test-voice-btn p-2 rounded-full hover:bg-cyan-500/20" data-voice-name="${voice.name}" title="Test Voice">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            </button>
+                        </label>
                     `;
-                    voiceOptionsContainer.appendChild(option);
+                    voiceOptionsContainer.appendChild(optionWrapper);
                 });
+            };
+
+            const testVoice = (voiceName) => {
+                if (!voiceName || !window.speechSynthesis) return;
+
+                window.speechSynthesis.cancel(); // Stop any other test
+
+                const utterance = new SpeechSynthesisUtterance("नमस्ते, अहं संस्कृतमित्रम्।");
+                const voice = synthesisVoices.find(v => v.name === voiceName);
+                if (voice) {
+                    utterance.voice = voice;
+                }
+                
+                const btn = voiceOptionsContainer.querySelector(`.test-voice-btn[data-voice-name="${voiceName}"]`);
+
+                utterance.onstart = () => {
+                    if (btn) btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500 pointer-events-none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+                };
+                const resetIcon = () => {
+                    if (btn) btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+                };
+                utterance.onend = resetIcon;
+                utterance.onerror = resetIcon;
+
+                window.speechSynthesis.speak(utterance);
             };
 
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = populateVoiceOptions;
             }
 
-            if (voiceSelectBtn) voiceSelectBtn.addEventListener('click', () => {
+            if (voiceSettingsBtn) voiceSettingsBtn.addEventListener('click', () => {
                 populateVoiceOptions();
                 voiceModal.classList.remove('hidden');
             });
@@ -2263,14 +2416,25 @@
                 }
             });
 
-            if (voiceOptionsContainer) voiceOptionsContainer.addEventListener('change', async (e) => {
-                if (e.target.name === 'voice') {
-                    selectedVoice = e.target.value;
-                    await window.firebase.updateDoc(getUserDocRef(), { selectedVoice: selectedVoice });
-                    populateVoiceOptions(); // Re-render to show selection
-                    setTimeout(() => voiceModal.classList.add('hidden'), 300);
-                }
-            });
+            if (voiceOptionsContainer) {
+                voiceOptionsContainer.addEventListener('change', async (e) => {
+                    if (e.target.name === 'voice') {
+                        selectedVoice = e.target.value;
+                        await window.firebase.updateDoc(getUserDocRef(), { selectedVoice: selectedVoice });
+                        populateVoiceOptions(); // Re-render to show selection
+                    }
+                });
+
+                voiceOptionsContainer.addEventListener('click', (e) => {
+                    const testBtn = e.target.closest('.test-voice-btn');
+                    if (testBtn) {
+                        e.preventDefault(); // Prevent label from being triggered
+                        e.stopPropagation(); // Prevent event bubbling
+                        const voiceName = testBtn.dataset.voiceName;
+                        testVoice(voiceName);
+                    }
+                });
+            }
 
             // --- Theme Toggle ---
             const applyTheme = (theme) => {
@@ -2390,81 +2554,14 @@
                 taskTimezone.innerHTML = timezones.map(tz => `<option value="${tz}" ${tz === userTimezone ? 'selected' : ''}>${tz}</option>`).join('');
             };
 
-            const requestNotificationPermission = async () => {
-                if (!('Notification' in window)) {
-                    console.error('This browser does not support desktop notification');
-                    return 'denied';
-                }
-                if (Notification.permission === 'granted') {
-                    return 'granted';
-                }
-                if (Notification.permission !== 'denied') {
-                    const permission = await Notification.requestPermission();
-                    return permission;
-                }
-                return 'denied';
-            };
-
-            const checkTasksForAlarms = async () => {
-                if (!userId || Notification.permission !== 'granted') return;
-
-                const now = window.firebase.Timestamp.now();
-                const tasksColRef = getTasksColRef();
-                const q = window.firebase.query(tasksColRef,
-                    window.firebase.where('alarmEnabled', '==', true),
-                    window.firebase.where('alarmTriggered', '==', false),
-                    window.firebase.where('taskDateTime', '<=', now)
-                );
-
-                try {
-                    const querySnapshot = await window.firebase.getDocs(q);
-
-                    if (!querySnapshot.empty && alarmSound.paused) {
-                        alarmSound.play().catch(e => console.error("Error playing alarm sound:", e));
-                    }
-
-                    querySnapshot.forEach(doc => {
-                        const task = doc.data();
-                        const notification = new Notification('Sanskrit Mitra Task Reminder', { 
-                            body: task.description, 
-                            icon: './favicon.ico',
-                            tag: doc.id // Use a tag to manage notifications
-                        });
-
-                        const stopAlarm = () => {
-                            if (!alarmSound.paused) {
-                                alarmSound.pause();
-                                alarmSound.currentTime = 0;
-                            }
-                        };
-
-                        notification.onclick = () => {
-                            stopAlarm();
-                            window.focus();
-                        };
-                        notification.onclose = stopAlarm;
-
-                        window.firebase.updateDoc(doc.ref, { alarmTriggered: true });
-                    });
-                } catch (error) { console.error("Error checking for task alarms:", error); }
-            };
-
             const saveTask = async () => {
                 const description = taskDescription.value.trim();
                 const date = taskDate.value;
                 const time = taskTime.value;
-                const alarmEnabled = document.getElementById('task-alarm').checked;
 
                 if (!description || !date || !time) {
                     alert('Please fill out all task fields.'); // Replace with a better modal later
                     return;
-                }
-
-                if (alarmEnabled && Notification.permission !== 'granted') {
-                    const permission = await requestNotificationPermission();
-                    if (permission !== 'granted') {
-                        console.warn('Notification permission denied. The alarm will be saved but not displayed.');
-                    }
                 }
 
                 const [year, month, day] = date.split('-');
@@ -2476,8 +2573,6 @@
                     taskDateTime: window.firebase.Timestamp.fromDate(taskDateTime),
                     timeZone: taskTimezone.value,
                     isCompleted: false,
-                    alarmEnabled: alarmEnabled,
-                    alarmTriggered: false,
                     createdAt: window.firebase.serverTimestamp()
                 };
 
@@ -2531,7 +2626,7 @@
 
             // --- Global Functions ---
             const speakMessage = (message) => {
-                if (!message || message.imageURL) return;
+                if (!message || !window.speechSynthesis) return;
 
                 const wasSpeaking = window.speechSynthesis.speaking;
                 const wasThisMessage = playingMessageId === message.id;
@@ -2545,37 +2640,41 @@
                 if (wasSpeaking && wasThisMessage) {
                     return;
                 }
-
-                const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-
-                const voice = window.speechSynthesis.getVoices().find(v => v.name === selectedVoice);
-                if (voice) {
-                    utterance.voice = voice;
-                } else {
-                    const sanskritVoice = window.speechSynthesis.getVoices().find(v => v.lang.startsWith('sa-IN'));
-                    if (sanskritVoice) utterance.voice = sanskritVoice;
-                }
-
-                utterance.onstart = () => {
-                    playingMessageId = message.id;
-                    window.updateAudioIcons();
-                };
-
-                utterance.onend = () => {
-                    playingMessageId = null;
-                    window.updateAudioIcons();
-                };
                 
-                utterance.onerror = (event) => {
-                    if (event.error !== 'canceled' && event.error !== 'interrupted') {
-                        console.error('SpeechSynthesisUtterance.onerror', event);
-                    }
-                    playingMessageId = null;
-                    window.updateAudioIcons();
-                };
+                // A small delay helps prevent race conditions in some browsers where `speak()` is ignored immediately after `cancel()`.
+                setTimeout(() => {
+                    const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
-                window.speechSynthesis.speak(utterance);
+                    const voices = window.speechSynthesis.getVoices();
+                    let voice = voices.find(v => v.name === selectedVoice);
+                    if (!voice) {
+                        voice = voices.find(v => v.lang.startsWith('sa-IN'));
+                    }
+                    if (voice) {
+                        utterance.voice = voice;
+                    }
+
+                    utterance.onstart = () => {
+                        playingMessageId = message.id;
+                        window.updateAudioIcons();
+                    };
+
+                    utterance.onend = () => {
+                        playingMessageId = null;
+                        window.updateAudioIcons();
+                    };
+                    
+                    utterance.onerror = (event) => {
+                        if (event.error !== 'canceled' && event.error !== 'interrupted') {
+                            console.error('SpeechSynthesisUtterance.onerror', event);
+                        }
+                        playingMessageId = null;
+                        window.updateAudioIcons();
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                }, 100);
             };
 
             window.handleStopAudio = () => {
@@ -3087,12 +3186,6 @@
                 }
             });
 
-            document.addEventListener('click', () => {
-                if (!dashboardMenuDropdown.classList.contains('hidden')) {
-                    dashboardMenuDropdown.classList.add('hidden');
-                }
-            });
-            
             const handlePlayOverview = async (moduleId, button) => {
                 if (playingOverviewModuleId === moduleId) {
                     if (audioPlayer.paused) {
