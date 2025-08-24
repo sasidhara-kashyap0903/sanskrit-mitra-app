@@ -228,6 +228,25 @@
         .light #tools-menu-dropdown button { color: #4b5563; }
         .light #tools-menu-dropdown button:hover { background-color: #f3f4f6; }
     </style>
+    <style>
+        /* --- Incognito Mode Enhancements --- */
+        .incognito-active #chatbot-container > .border-b {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        .incognito-active #input-area {
+            background: linear-gradient(to top, rgba(59, 130, 246, 0.15), transparent);
+            border-top-color: rgba(59, 130, 246, 0.4);
+        }
+        .light .incognito-active #chatbot-container > .border-b {
+            border-bottom-color: #60a5fa; /* blue-400 */
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .light .incognito-active #input-area {
+            background: linear-gradient(to top, rgba(59, 130, 246, 0.07), transparent);
+            border-top-color: rgba(59, 130, 246, 0.3);
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-white transition-colors duration-300">
     <script>
@@ -495,11 +514,12 @@
 
         <!-- Confirmation Modal -->
         <div id="confirmation-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
-            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm mx-auto">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-auto">
                 <h3 id="modal-title" class="text-lg font-bold text-white">Confirm Action</h3>
                 <p id="modal-body" class="text-gray-300 mt-2 mb-6">Are you sure you want to proceed?</p>
                 <div class="flex justify-end gap-4">
-                    <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 font-semibold rounded-lg">Cancel</button>
+                    <button id="modal-extra-btn" class="hidden px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500">Save</button>
+                    <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 font-semibold rounded-lg transition-colors">Cancel</button>
                     <button id="modal-confirm-btn" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500">Delete</button>
                 </div>
             </div>
@@ -2056,12 +2076,60 @@
                 currentModalAction = null;
             });
 
+            const confirmExitIncognito = () => {
+                // Don't show if it's just the initial "welcome" message
+                if (messages.length <= 1) {
+                    exitIncognitoMode(false); // Don't save
+                    return;
+                }
+
+                const modal = document.getElementById('confirmation-modal');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+                const extraBtn = document.getElementById('modal-extra-btn');
+                const cancelBtn = document.getElementById('modal-cancel-btn');
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+
+                title.textContent = 'Exit Incognito Mode';
+                body.textContent = 'Do you want to save this conversation as a new chat? Unsaved chats will be lost.';
+
+                // Configure buttons
+                extraBtn.textContent = 'Save and Exit';
+                extraBtn.className = 'px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition-colors';
+                extraBtn.classList.remove('hidden');
+
+                cancelBtn.textContent = 'Cancel';
+
+                confirmBtn.textContent = 'Discard and Exit';
+                confirmBtn.className = 'px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors';
+
+                // Clone and replace to remove old listeners
+                const newExtraBtn = extraBtn.cloneNode(true);
+                extraBtn.parentNode.replaceChild(newExtraBtn, extraBtn);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+                newExtraBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    exitIncognitoMode(true); // Save the chat
+                };
+                newConfirmBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    exitIncognitoMode(false); // Don't save
+                };
+                newCancelBtn.onclick = () => modal.classList.add('hidden');
+
+                modal.classList.remove('hidden');
+            };
+
             if (searchChatsInput) searchChatsInput.addEventListener('input', (e) => {
                 renderChatHistoryList(e.target.value);
             });
             if (chatHistoryList) chatHistoryList.addEventListener('click', async (e) => {
                 const chatItem = e.target.closest('.chat-item');
-                if (!chatItem) return;
+                if (!chatItem || isIncognitoMode) return;
 
                 const chatId = chatItem.dataset.chatId;
 
@@ -3384,7 +3452,10 @@
             }
 
             const enterIncognitoMode = () => {
-                if (isLoading) return; // Don't switch modes while loading a response
+                if (isLoading) {
+                    alert("Please wait for the current response to finish before entering Incognito Mode.");
+                    return;
+                }
                 isIncognitoMode = true;
                 originalActiveChatId = activeChatId; // Save current chat
                 activeChatId = 'incognito'; // Use a special ID
@@ -3393,12 +3464,13 @@
                 messages = [{
                     id: Date.now(),
                     sender: 'bot',
-                    text: "You've entered Incognito Mode. This chat will not be saved.",
-                    translation: "आप गुप्त मोड में प्रवेश कर चुके हैं। यह चैट सहेजी नहीं जाएगी।"
+                    text: "**Incognito Mode Activated**\n\nYour conversation here will not be saved to your chat history. You can choose to save it as a new chat when you exit.",
+                    translation: "गुप्त मोड सक्रिय हो गया है। यहां आपकी बातचीत आपके चैट इतिहास में सहेजी नहीं जाएगी। बाहर निकलने पर आप इसे एक नई चैट के रूप में सहेजना चुन सकते हैं।"
                 }];
                 renderMessages();
 
                 // Update UI
+                document.getElementById('chatbot-container').classList.add('incognito-active');
                 viewModeIndicator.textContent = 'Incognito Mode';
                 viewModeIndicator.classList.add('text-yellow-400');
                 incognitoChatBtn.querySelector('span').textContent = 'Exit Incognito';
@@ -3406,19 +3478,48 @@
 
                 menuBtn.disabled = true;
                 menuBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                menuBtn.title = 'Not available in Incognito Mode';
                 newChatBtn.disabled = true;
+                newChatBtn.title = 'Not available in Incognito Mode';
                 bookmarksBtn.disabled = true;
                 bookmarksBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                bookmarksBtn.title = 'Not available in Incognito Mode';
                 exportChatBtn.disabled = true;
                 exportChatBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                exportChatBtn.title = 'Not available in Incognito Mode';
                 
                 updateChatView(true);
             };
 
-            const exitIncognitoMode = async () => {
+            const exitIncognitoMode = async (saveChat = false) => {
+                if (saveChat && messages.length > 1) {
+                    // Logic to save the incognito chat as a new chat
+                    const incognitoMessages = messages.slice(1); // Exclude the "You're in incognito" message
+                    const firstUserMessage = incognitoMessages.find(m => m.sender === 'user');
+                    const title = firstUserMessage ? firstUserMessage.text.substring(0, 40) : 'Incognito Chat';
+                    
+                    try {
+                        const newChatDoc = await window.firebase.addDoc(getChatsColRef(), {
+                            createdAt: window.firebase.serverTimestamp(),
+                            messages: incognitoMessages,
+                            bookmarkedMessageIds: [], // Bookmarks are disabled in incognito
+                            isPinned: false,
+                            title: title
+                        });
+                        // Set this new chat as the active one to be loaded
+                        originalActiveChatId = newChatDoc.id;
+                    } catch (error) {
+                        console.error("Error saving incognito chat:", error);
+                        alert("Could not save the chat. Please try again.");
+                        // Don't exit incognito if saving fails, so user can try again.
+                        return;
+                    }
+                }
+
                 isIncognitoMode = false;
                 
                 // Restore UI
+                document.getElementById('chatbot-container').classList.remove('incognito-active');
                 viewModeIndicator.textContent = 'Your AI Sanskrit Companion';
                 viewModeIndicator.classList.remove('text-yellow-400');
                 incognitoChatBtn.querySelector('span').textContent = 'Incognito Chat';
@@ -3426,25 +3527,30 @@
 
                 menuBtn.disabled = false;
                 menuBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                menuBtn.title = 'Toggle Menu';
                 newChatBtn.disabled = false;
+                newChatBtn.title = '';
                 bookmarksBtn.disabled = false;
                 bookmarksBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                bookmarksBtn.title = 'View Bookmarks';
                 exportChatBtn.disabled = false;
                 exportChatBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                exportChatBtn.title = 'Export Chat';
 
                 // Restore previous chat session
                 activeChatId = originalActiveChatId;
                 originalActiveChatId = null;
                 messages = []; // Clear incognito messages
                 bookmarkedMessageIds.clear();
-                
-                listenForActiveChat(activeChatId); 
+
+                // This will trigger the onSnapshot listener which calls listenForActiveChat
+                await window.firebase.updateDoc(getUserDocRef(), { activeChatId: activeChatId });
             };
 
             if (incognitoChatBtn) {
                 incognitoChatBtn.addEventListener('click', () => {
                     if (isIncognitoMode) {
-                        exitIncognitoMode();
+                        confirmExitIncognito();
                     } else {
                         enterIncognitoMode();
                     }
