@@ -119,13 +119,17 @@ window.addEventListener('load', () => {
 				window.updateAudioIcons(); // Update icons when speech ends
 			};
 			utterance.onerror = (event) => {
-				if (event.error === 'interrupted') {
-					// This is expected, so we do nothing.
-					console.log("Speech interrupted as intended.");
+				// These errors are expected when the user clicks another button
+				// or stops audio manually. We can safely ignore them.
+				if (event.error === 'canceled' || event.error === 'interrupted') {
+					console.log(`Speech was intentionally ${event.error}.`);
 					return; 
 				}
+
 				// Log any other, unexpected errors
-				console.error("An unexpected speech synthesis error occurred:", event.error);
+				console.error('An unexpected speech synthesis error occurred:', event);
+				playingMessageId = null;
+				window.updateAudioIcons();
 			};
 			window.speechSynthesis.speak(utterance);
 		}

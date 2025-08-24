@@ -2560,7 +2560,9 @@
                 };
                 
                 utterance.onerror = (event) => {
-                    console.error('SpeechSynthesisUtterance.onerror', event);
+                    if (event.error !== 'canceled' && event.error !== 'interrupted') {
+                        console.error('SpeechSynthesisUtterance.onerror', event);
+                    }
                     playingMessageId = null;
                     window.updateAudioIcons();
                 };
