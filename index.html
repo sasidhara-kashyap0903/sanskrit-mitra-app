@@ -92,6 +92,12 @@
         .message-enter {
             animation: message-enter 0.3s ease-out;
         }
+        @keyframes highlight-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.7); } /* cyan-600 */
+            70% { box-shadow: 0 0 0 10px rgba(8, 145, 178, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0); }
+        }
+        .message-bubble.highlight { animation: highlight-pulse 1.5s 1; }
 
         /* Table Styles */
         .sanskrit-table {
@@ -194,7 +200,7 @@
         .light .bg-gray-800 .text-white { color: #1f2937; }
         .light .bg-gray-700 .text-white { color: #111827; }
         .light #confirmation-modal .bg-gray-800, .light #voice-modal .bg-gray-800, .light #lesson-selection-modal .bg-gray-800, .light #lesson-modal .bg-gray-800, .light #quiz-modal .bg-gray-800, .light #quiz-setup-modal .bg-gray-800, .light #image-gen-modal .bg-gray-800, .light #achievements-modal .bg-gray-800, .light #task-scheduler-modal .bg-gray-800 { background-color: #ffffff; }
-        .light #confirmation-modal .text-white, .light #voice-modal .text-white, .light #lesson-selection-modal .text-white, .light #lesson-modal .text-white, .light #quiz-modal .text-white, .light #quiz-setup-modal .text-white, .light #image-gen-modal .text-white, .light #achievements-modal .text-white, .light #task-scheduler-modal .text-white { color: #1f2937; }
+        .light #confirmation-modal .text-white, .light #voice-modal .text-white, .light #lesson-selection-modal .text-white, .light #lesson-modal .text-white, .light #quiz-modal .text-white, .light #quiz-setup-modal .text-white, .light #image-gen-modal .text-white, .light #achievements-modal .text-white, .light #task-scheduler-modal .text-white, .light #bookmarks-modal .text-white { color: #1f2937; }
         .light .voice-option { background-color: #f3f4f6; }
         .light .voice-option:has(input:checked) { background-color: rgba(14, 165, 233, 0.1); }
         .light .voice-option:has(input:checked) .check-indicator {
@@ -218,6 +224,7 @@
         .light .review-question-item.correct { border-left-color: #10b981; }
         .light .review-question-item.incorrect { border-left-color: #ef4444; }
         .light #tools-menu-dropdown { background-color: #ffffff; border-color: #e5e7eb; }
+        .light #bookmarks-modal .bg-gray-800, .light #bookmarks-modal .bg-gray-700\/50 { background-color: #ffffff; }
         .light #tools-menu-dropdown button { color: #4b5563; }
         .light #tools-menu-dropdown button:hover { background-color: #f3f4f6; }
     </style>
@@ -371,6 +378,9 @@
                         <p id="view-mode-indicator" class="text-sm text-gray-400 truncate">Your AI Sanskrit Companion</p>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
+                        <button id="bookmarks-btn" title="View Bookmarks" class="p-2 rounded-full hover:bg-gray-700 transition-colors" aria-label="View Bookmarks">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                        </button>
                         <button id="theme-toggle-btn" title="Toggle Theme" class="p-2 rounded-full hover:bg-gray-700 transition-colors" aria-label="Toggle Theme">
                            <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                            <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 hover:text-white"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -413,10 +423,15 @@
                             </button>
                             <div id="tools-menu-dropdown" class="hidden absolute bottom-full mb-2 w-56 bg-gray-900 border border-cyan-500/20 rounded-lg shadow-lg z-10 p-2">
                                 <div class="space-y-1">
+                                    <button id="incognito-chat-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="22" y2="13"/><line x1="22" y1="8" x2="17" y2="13"/></svg>
+                                       <span>Incognito Chat</span>
+                                    </button>
                                     <button id="guided-learning-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 5 4 5 6 5s6-0 6-5v-5"/></svg>
                                        <span>Guided Learning</span>
                                     </button>
+                                   
                                     <button id="schedule-task-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                         <span>Schedule Task</span>
@@ -424,10 +439,6 @@
                                     <button id="achievements-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 12h8l-3-3 3-3h-8V4h10v16H12z"/></svg>
                                         <span>My Achievements</span>
-                                    </button>
-                                    <button id="voice-settings-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
-                                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                                       <span>Voice Settings</span>
                                     </button>
                                     <button id="deep-think-btn" class="w-full flex items-center gap-3 p-2 text-left text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7v0A2.5 2.5 0 0 1 7 9.5v0A2.5 2.5 0 0 1 4.5 12v0A2.5 2.5 0 0 1 7 14.5v0A2.5 2.5 0 0 1 9.5 17v0A2.5 2.5 0 0 1 12 19.5v0A2.5 2.5 0 0 1 14.5 17v0A2.5 2.5 0 0 1 17 14.5v0A2.5 2.5 0 0 1 19.5 12v0A2.5 2.5 0 0 1 17 9.5v0A2.5 2.5 0 0 1 14.5 7v0A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 2Z"/><path d="M12 12a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 17v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 12Z"/><path d="M12 4.5a2.5 2.5 0 0 0-2.5 2.5v0A2.5 2.5 0 0 0 12 9.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 12 4.5Z"/><path d="M17 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0a2.5 2.5 0 0 0-2.5-2.5Z"/><path d="M7 9.5a2.5 2.5 0 0 0-2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5-2.5v0A2.5 2.5 0 0 0 7 9.5Z"/></svg>
@@ -585,6 +596,21 @@
             </div>
         </div>
 
+        <!-- Bookmarks Modal -->
+        <div id="bookmarks-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                    <h3 class="text-xl font-bold text-cyan-400">Bookmarks</h3>
+                    <button id="bookmarks-modal-close-btn" class="p-1 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div id="bookmarks-modal-list" class="flex-grow overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                    <!-- Bookmarks will be injected here -->
+                </div>
+            </div>
+        </div>
+
         <!-- Lesson Modal -->
         <div id="lesson-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
             <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]">
@@ -738,6 +764,7 @@
             const imageGenSubmitBtn = document.getElementById('image-gen-submit-btn');
             const imageGenLoader = document.getElementById('image-gen-loader');
             const scheduleTaskBtn = document.getElementById('schedule-task-btn');
+            const googleSearchBtn = document.getElementById('google-search-btn');
             const guidedLearningBtn = document.getElementById('guided-learning-btn');
             const deepThinkBtn = document.getElementById('deep-think-btn');
             const taskSchedulerModal = document.getElementById('task-scheduler-modal');
@@ -783,6 +810,11 @@
             const toolsMenuBtn = document.getElementById('tools-menu-btn');
             const toolsMenuDropdown = document.getElementById('tools-menu-dropdown');
             const exportChatBtn = document.getElementById('export-chat-btn');
+            const bookmarksBtn = document.getElementById('bookmarks-btn');
+            const bookmarksModal = document.getElementById('bookmarks-modal');
+            const bookmarksModalCloseBtn = document.getElementById('bookmarks-modal-close-btn');
+            const bookmarksModalList = document.getElementById('bookmarks-modal-list');
+            const incognitoChatBtn = document.getElementById('incognito-chat-btn');
 
             // --- State Management ---
             let isLoading = false;
@@ -799,6 +831,8 @@
             let currentModalAction = null;
             let currentTheme = 'dark';
             let learningProgress = {};
+            let isIncognitoMode = false;
+            let originalActiveChatId = null;
             let currentQuiz = {};
             let activeCourseId = 'course1';
             
@@ -1374,7 +1408,7 @@
             const getActiveChatRef = () => getChatDocRef(activeChatId);
             const getProgressDocRef = () => window.firebase.doc(getUserDocRef(), "progress", "main");
 
-            const saveChatHistory = async () => {
+            const saveChatHistory = async () => { if (isIncognitoMode) return;
                 if (!activeChatId) return;
                 const chatRef = getActiveChatRef();
                 const dataToSave = {
@@ -1611,6 +1645,56 @@
                 saveChatHistory();
             };
             
+            const renderBookmarksInModal = () => {
+                if (!bookmarksModalList) return;
+
+                bookmarksModalList.innerHTML = '';
+
+                if (!activeChatId || bookmarkedMessageIds.size === 0) {
+                    bookmarksModalList.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No bookmarks in this chat.</p>`;
+                    return;
+                }
+
+                const bookmarkedMessages = messages.filter(m => bookmarkedMessageIds.has(m.id)).sort((a, b) => a.id - b.id);
+
+                if (bookmarkedMessages.length === 0) {
+                    bookmarksModalList.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No bookmarks in this chat.</p>`;
+                    return;
+                }
+
+                bookmarkedMessages.forEach(message => {
+                    const item = document.createElement('div');
+                    item.className = 'relative group bg-gray-700/50 rounded-lg hover:bg-gray-700/80 transition-colors';
+                    
+                    const senderClass = message.sender === 'user' ? 'text-cyan-400' : 'text-purple-400';
+                    const cleanText = message.text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+                    
+                    const editButtonHtml = message.sender === 'user' ? `
+                        <button class="p-1 rounded-full hover:bg-gray-600 edit-bookmark-btn" title="Edit Message" data-message-id="${message.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 pointer-events-none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                    ` : '';
+
+                    item.innerHTML = `
+                        <button class="w-full text-left p-3 bookmark-jump-btn" data-message-id="${message.id}">
+                            <div class="flex justify-between items-start">
+                                <span class="font-semibold ${senderClass}">${message.sender === 'user' ? 'You' : 'Mitra'}</span>
+                                <span class="text-xs text-gray-500 flex-shrink-0 ml-2">${new Date(message.id).toLocaleString()}</span>
+                            </div>
+                            <p class="mt-1 text-gray-300 text-sm truncate pr-16">${cleanText}</p>
+                        </button>
+                        <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                            ${editButtonHtml}
+                            <button class="p-1 rounded-full hover:bg-gray-600 delete-bookmark-btn" title="Remove Bookmark" data-message-id="${message.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400 pointer-events-none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </div>
+                    `;
+                    item.querySelector('.bookmark-jump-btn').title = cleanText;
+                    bookmarksModalList.appendChild(item);
+                });
+            };
+
             const exportChat = () => {
                 if (!activeChatId || messages.length === 0) {
                     console.log("No active chat to export.");
@@ -1689,8 +1773,7 @@
                 if (message.sender === 'bot' && !message.text.includes("kshamyatām")) {
                     controlsContainer.className = 'absolute -bottom-2 -right-2 flex gap-1';
                     const translateBtn = message.translation ? `<button data-translate-id="${message.id}" class="translate-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Translate message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="m7 2 3.5 3.5"/><path d="m14 18 3 3 3-3"/><path d="M17 10v11"/></svg></button>` : '';
-                    const speakBtn = `<button data-speak-id="${message.id}" class="speak-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Speak message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>`;
-                    controlsHTML = `${bookmarkBtn}${translateBtn}<button data-copy-id="${message.id}" class="copy-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Copy message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></button>${speakBtn}`;
+                    controlsHTML = `${bookmarkBtn}${translateBtn}<button data-copy-id="${message.id}" class="copy-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Copy message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg></button>`;
                 } else if (message.sender === 'user') {
                     controlsContainer.className = 'absolute -bottom-2 -left-2 flex gap-1';
                     controlsHTML = `${bookmarkBtn}<button data-edit-id="${message.id}" class="edit-btn p-1.5 bg-gray-900/50 rounded-full hover:bg-cyan-600 transition-all opacity-0 group-hover:opacity-100" aria-label="Edit message"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>`;
@@ -1767,7 +1850,11 @@
                         ...fileInfo
                     };
                     messages.push(newUserMessage);
-                    await saveChatHistory();
+                    if (isIncognitoMode) {
+                        renderMessages();
+                    } else {
+                        await saveChatHistory();
+                    }
                     
                     inputField.value = '';
                     currentFile = null;
@@ -1865,7 +1952,7 @@
                         translation: englishTranslation
                     };
                     messages.push(newBotMessage);
-                    speakMessage(newBotMessage);
+                    
 
                 } catch (error) {
                     if (error.message === 'AbortError' || error.name === 'AbortError') {
@@ -1877,7 +1964,11 @@
                     }
                 } finally {
                     if (!abortController.signal.aborted) {
-                        await saveChatHistory();
+                        if (isIncognitoMode) {
+                            renderMessages();
+                        } else {
+                            await saveChatHistory();
+                        }
                         setLoadingState(false);
                     }
                 }
@@ -2183,7 +2274,7 @@
                 const target = e.target.closest('button');
                 if (!target) return;
 
-                if (target.matches('.speak-btn')) window.handleSpeak(target);
+                
                 if (target.matches('.copy-btn')) window.handleCopyToClipboard(target);
                 if (target.matches('.edit-btn')) startEditing(target);
                 if (target.matches('.save-edit-btn')) saveEditing(editingMessageId);
@@ -2376,66 +2467,7 @@
                 });
             };
 
-            const testVoice = (voiceName) => {
-                if (!voiceName || !window.speechSynthesis) return;
-
-                window.speechSynthesis.cancel(); // Stop any other test
-
-                const utterance = new SpeechSynthesisUtterance("नमस्ते, अहं संस्कृतमित्रम्।");
-                const voice = synthesisVoices.find(v => v.name === voiceName);
-                if (voice) {
-                    utterance.voice = voice;
-                }
-                
-                const btn = voiceOptionsContainer.querySelector(`.test-voice-btn[data-voice-name="${voiceName}"]`);
-
-                utterance.onstart = () => {
-                    if (btn) btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500 pointer-events-none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-                };
-                const resetIcon = () => {
-                    if (btn) btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-                };
-                utterance.onend = resetIcon;
-                utterance.onerror = resetIcon;
-
-                window.speechSynthesis.speak(utterance);
-            };
-
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = populateVoiceOptions;
-            }
-
-            if (voiceSettingsBtn) voiceSettingsBtn.addEventListener('click', () => {
-                populateVoiceOptions();
-                voiceModal.classList.remove('hidden');
-            });
-            if (voiceModalCloseBtn) voiceModalCloseBtn.addEventListener('click', () => voiceModal.classList.add('hidden'));
-            if (voiceModal) voiceModal.addEventListener('click', (e) => {
-                if (e.target === voiceModal) {
-                    voiceModal.classList.add('hidden');
-                }
-            });
-
-            if (voiceOptionsContainer) {
-                voiceOptionsContainer.addEventListener('change', async (e) => {
-                    if (e.target.name === 'voice') {
-                        selectedVoice = e.target.value;
-                        await window.firebase.updateDoc(getUserDocRef(), { selectedVoice: selectedVoice });
-                        populateVoiceOptions(); // Re-render to show selection
-                    }
-                });
-
-                voiceOptionsContainer.addEventListener('click', (e) => {
-                    const testBtn = e.target.closest('.test-voice-btn');
-                    if (testBtn) {
-                        e.preventDefault(); // Prevent label from being triggered
-                        e.stopPropagation(); // Prevent event bubbling
-                        const voiceName = testBtn.dataset.voiceName;
-                        testVoice(voiceName);
-                    }
-                });
-            }
-
+            
             // --- Theme Toggle ---
             const applyTheme = (theme) => {
                 currentTheme = theme;
@@ -2609,6 +2641,13 @@
                     openLessonSelectionModal(); // Open with no specific module to show all modules
                 });
             }
+            if (googleSearchBtn) {
+                googleSearchBtn.addEventListener('click', () => {
+                    const query = inputField.value.trim();
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                    window.open(searchUrl, '_blank');
+                });
+            }
             if (deepThinkBtn) {
                 deepThinkBtn.addEventListener('click', () => {
                     const deepThinkPrefix = '[DEEP THINK]: ';
@@ -2625,71 +2664,11 @@
 
 
             // --- Global Functions ---
-            const speakMessage = (message) => {
-                if (!message || !window.speechSynthesis) return;
+            
 
-                const wasSpeaking = window.speechSynthesis.speaking;
-                const wasThisMessage = playingMessageId === message.id;
 
-                // Always cancel any previous speech.
-                if (wasSpeaking) {
-                    window.speechSynthesis.cancel();
-                }
+            
 
-                // If the user clicks the same message that was playing, we just stop it and don't restart.
-                if (wasSpeaking && wasThisMessage) {
-                    return;
-                }
-                
-                // A small delay helps prevent race conditions in some browsers where `speak()` is ignored immediately after `cancel()`.
-                setTimeout(() => {
-                    const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-
-                    const voices = window.speechSynthesis.getVoices();
-                    let voice = voices.find(v => v.name === selectedVoice);
-                    if (!voice) {
-                        voice = voices.find(v => v.lang.startsWith('sa-IN'));
-                    }
-                    if (voice) {
-                        utterance.voice = voice;
-                    }
-
-                    utterance.onstart = () => {
-                        playingMessageId = message.id;
-                        window.updateAudioIcons();
-                    };
-
-                    utterance.onend = () => {
-                        playingMessageId = null;
-                        window.updateAudioIcons();
-                    };
-                    
-                    utterance.onerror = (event) => {
-                        if (event.error !== 'canceled' && event.error !== 'interrupted') {
-                            console.error('SpeechSynthesisUtterance.onerror', event);
-                        }
-                        playingMessageId = null;
-                        window.updateAudioIcons();
-                    };
-
-                    window.speechSynthesis.speak(utterance);
-                }, 100);
-            };
-
-            window.handleStopAudio = () => {
-                if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                }
-                playingMessageId = null;
-                window.updateAudioIcons();
-            };
-            window.updateAudioIcons = () => { document.querySelectorAll('.speak-btn').forEach(btn => { const id = parseInt(btn.dataset.speakId); btn.innerHTML = id === playingMessageId ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; }); stopAudioContainer.innerHTML = ''; if (playingMessageId) { const stopBtn = document.createElement('button'); stopBtn.className = "p-1 rounded-full hover:bg-red-500/20 transition-colors"; stopBtn.ariaLabel = "Stop audio"; stopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>`; stopBtn.onclick = window.handleStopAudio; stopAudioContainer.appendChild(stopBtn); } };
-            window.handleSpeak = (speakBtn) => {
-                const messageId = parseInt(speakBtn.dataset.speakId);
-                const message = messages.find(m => m.id === messageId);
-                speakMessage(message);
-            };
             window.handleCopyToClipboard = (copyBtn) => { const messageId = parseInt(copyBtn.dataset.copyId); const message = messages.find(m => m.id === messageId); if (!message) return; const textArea = document.createElement('textarea'); let textToCopy = message.text; if (message.translation) { textToCopy += `\n\n${message.translation}`; } textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 pointer-events-none"><polyline points="20 6 9 17 4 12"></polyline></svg>`; setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>`; }, 2000); } catch (err) { console.error('Failed to copy text: ', err); } document.body.removeChild(textArea); };
             window.handleTranslate = (translateBtn) => { const messageId = parseInt(translateBtn.dataset.translateId); const messageNode = document.getElementById(`message-${messageId}`); if (!messageNode) return; const translationContainer = messageNode.querySelector('.translation-content'); if (translationContainer) { translationContainer.classList.toggle('hidden'); } };
         
@@ -3200,8 +3179,7 @@
                 playingOverviewModuleId = moduleId;
                 updateOverviewIcons();
 
-                const textToSpeak = modules[moduleId].overview_sanskrit;
-                const audioInfo = await callGeminiTTSAPI(textToSpeak);
+                
 
                 if (audioInfo && playingOverviewModuleId === moduleId) {
                     const sampleRate = parseInt(audioInfo.mimeType.match(/rate=(\d+)/)[1], 10);
@@ -3349,7 +3327,129 @@
             if (achievementsCloseBtn) achievementsCloseBtn.addEventListener('click', () => achievementsModal.classList.add('hidden'));
             if (exportChatBtn) exportChatBtn.addEventListener('click', () => exportChat());
 
+            if (bookmarksBtn) {
+                bookmarksBtn.addEventListener('click', () => {
+                    renderBookmarksInModal();
+                    bookmarksModal.classList.remove('hidden');
+                });
+            }
+            if (bookmarksModalCloseBtn) {
+                bookmarksModalCloseBtn.addEventListener('click', () => {
+                    bookmarksModal.classList.add('hidden');
+                });
+            }
+            if (bookmarksModal) {
+                bookmarksModal.addEventListener('click', (e) => {
+                    if (e.target === bookmarksModal) {
+                        bookmarksModal.classList.add('hidden');
+                    }
+                });
+            }
+            if (bookmarksModalList) {
+                bookmarksModalList.addEventListener('click', (e) => {
+                    const deleteBtn = e.target.closest('.delete-bookmark-btn');
+                    if (deleteBtn) {
+                        const messageId = parseInt(deleteBtn.dataset.messageId, 10);
+                        toggleBookmark(messageId);
+                        renderBookmarksInModal(); // Re-render the modal content
+                        return;
+                    }
 
+                    const editBtn = e.target.closest('.edit-bookmark-btn');
+                    if (editBtn) {
+                        const messageId = parseInt(editBtn.dataset.messageId, 10);
+                        bookmarksModal.classList.add('hidden');
+                        editMessage(messageId);
+                        // Scroll to the message to make sure it's in view for editing
+                        const messageElement = document.getElementById(`message-${messageId}`);
+                        if (messageElement) {
+                            messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return;
+                    }
+
+                    const jumpBtn = e.target.closest('.bookmark-jump-btn');
+                    if (jumpBtn) {
+                        const messageId = jumpBtn.dataset.messageId;
+                        const messageElement = document.getElementById(`message-${messageId}`);
+                        if (messageElement) {
+                            bookmarksModal.classList.add('hidden');
+                            messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            const bubble = messageElement.querySelector('.message-bubble');
+                            if (bubble) { bubble.classList.add('highlight'); setTimeout(() => { bubble.classList.remove('highlight'); }, 1500); }
+                        }
+                        return;
+                    }
+                });
+            }
+
+            const enterIncognitoMode = () => {
+                if (isLoading) return; // Don't switch modes while loading a response
+                isIncognitoMode = true;
+                originalActiveChatId = activeChatId; // Save current chat
+                activeChatId = 'incognito'; // Use a special ID
+
+                // Clear messages and add a welcome message
+                messages = [{
+                    id: Date.now(),
+                    sender: 'bot',
+                    text: "You've entered Incognito Mode. This chat will not be saved.",
+                    translation: "आप गुप्त मोड में प्रवेश कर चुके हैं। यह चैट सहेजी नहीं जाएगी।"
+                }];
+                renderMessages();
+
+                // Update UI
+                viewModeIndicator.textContent = 'Incognito Mode';
+                viewModeIndicator.classList.add('text-yellow-400');
+                incognitoChatBtn.querySelector('span').textContent = 'Exit Incognito';
+                incognitoChatBtn.querySelector('svg').innerHTML = `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>`;
+
+                menuBtn.disabled = true;
+                menuBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                newChatBtn.disabled = true;
+                bookmarksBtn.disabled = true;
+                bookmarksBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                exportChatBtn.disabled = true;
+                exportChatBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                updateChatView(true);
+            };
+
+            const exitIncognitoMode = async () => {
+                isIncognitoMode = false;
+                
+                // Restore UI
+                viewModeIndicator.textContent = 'Your AI Sanskrit Companion';
+                viewModeIndicator.classList.remove('text-yellow-400');
+                incognitoChatBtn.querySelector('span').textContent = 'Incognito Chat';
+                incognitoChatBtn.querySelector('svg').innerHTML = `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="22" y2="13"/><line x1="22" y1="8" x2="17" y2="13"/>`;
+
+                menuBtn.disabled = false;
+                menuBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                newChatBtn.disabled = false;
+                bookmarksBtn.disabled = false;
+                bookmarksBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                exportChatBtn.disabled = false;
+                exportChatBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                // Restore previous chat session
+                activeChatId = originalActiveChatId;
+                originalActiveChatId = null;
+                messages = []; // Clear incognito messages
+                bookmarkedMessageIds.clear();
+                
+                listenForActiveChat(activeChatId); 
+            };
+
+            if (incognitoChatBtn) {
+                incognitoChatBtn.addEventListener('click', () => {
+                    if (isIncognitoMode) {
+                        exitIncognitoMode();
+                    } else {
+                        enterIncognitoMode();
+                    }
+                });
+            }
         });
 
     </script>
