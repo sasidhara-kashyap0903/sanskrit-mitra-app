@@ -1819,12 +1819,14 @@
                         englishTranslation = await callGeminiAPI(translationPayload, abortController.signal);
                     }
 
-                    messages.push({ 
+                    const newBotMessage = {
                         id: Date.now(), 
                         text: sanskritText || "क्षमाम् अर्हामि, अहं एतत् संसाधयितुं न शक्नोमि।", 
                         sender: 'bot',
                         translation: englishTranslation
-                    });
+                    };
+                    messages.push(newBotMessage);
+                    speakMessage(newBotMessage);
 
                 } catch (error) {
                     if (error.message === 'AbortError' || error.name === 'AbortError') {
@@ -2528,28 +2530,13 @@
 
 
             // --- Global Functions ---
-            window.handleStopAudio = () => {
-                if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                }
-                playingMessageId = null;
-                window.updateAudioIcons();
-            };
-            window.updateAudioIcons = () => { document.querySelectorAll('.speak-btn').forEach(btn => { const id = parseInt(btn.dataset.speakId); btn.innerHTML = id === playingMessageId ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; }); stopAudioContainer.innerHTML = ''; if (playingMessageId) { const stopBtn = document.createElement('button'); stopBtn.className = "p-1 rounded-full hover:bg-red-500/20 transition-colors"; stopBtn.ariaLabel = "Stop audio"; stopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>`; stopBtn.onclick = window.handleStopAudio; stopAudioContainer.appendChild(stopBtn); } };
-            window.handleSpeak = (speakBtn) => {
-                const messageId = parseInt(speakBtn.dataset.speakId);
+            const speakMessage = (message) => {
+                if (!message || message.imageURL) return;
 
-                if (window.speechSynthesis.speaking && playingMessageId === messageId) {
-                    window.speechSynthesis.cancel();
-                    return;
-                }
-
+                // Stop any currently playing speech
                 if (window.speechSynthesis.speaking) {
                     window.speechSynthesis.cancel();
                 }
-                
-                const message = messages.find(m => m.id === messageId);
-                if (!message || message.imageURL) return;
 
                 const textToSpeak = message.text.replace(/<[^>]*>/g, ' ');
                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
@@ -2563,7 +2550,7 @@
                 }
 
                 utterance.onstart = () => {
-                    playingMessageId = messageId;
+                    playingMessageId = message.id;
                     window.updateAudioIcons();
                 };
 
@@ -2579,6 +2566,26 @@
                 };
 
                 window.speechSynthesis.speak(utterance);
+            };
+
+            window.handleStopAudio = () => {
+                if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                playingMessageId = null;
+                window.updateAudioIcons();
+            };
+            window.updateAudioIcons = () => { document.querySelectorAll('.speak-btn').forEach(btn => { const id = parseInt(btn.dataset.speakId); btn.innerHTML = id === playingMessageId ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; }); stopAudioContainer.innerHTML = ''; if (playingMessageId) { const stopBtn = document.createElement('button'); stopBtn.className = "p-1 rounded-full hover:bg-red-500/20 transition-colors"; stopBtn.ariaLabel = "Stop audio"; stopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>`; stopBtn.onclick = window.handleStopAudio; stopAudioContainer.appendChild(stopBtn); } };
+            window.handleSpeak = (speakBtn) => {
+                const messageId = parseInt(speakBtn.dataset.speakId);
+                const message = messages.find(m => m.id === messageId);
+
+                if (window.speechSynthesis.speaking && playingMessageId === messageId) {
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+
+                speakMessage(message);
             };
             window.handleCopyToClipboard = (copyBtn) => { const messageId = parseInt(copyBtn.dataset.copyId); const message = messages.find(m => m.id === messageId); if (!message) return; const textArea = document.createElement('textarea'); let textToCopy = message.text; if (message.translation) { textToCopy += `\n\n${message.translation}`; } textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 pointer-events-none"><polyline points="20 6 9 17 4 12"></polyline></svg>`; setTimeout(() => { copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 pointer-events-none"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>`; }, 2000); } catch (err) { console.error('Failed to copy text: ', err); } document.body.removeChild(textArea); };
             window.handleTranslate = (translateBtn) => { const messageId = parseInt(translateBtn.dataset.translateId); const messageNode = document.getElementById(`message-${messageId}`); if (!messageNode) return; const translationContainer = messageNode.querySelector('.translation-content'); if (translationContainer) { translationContainer.classList.toggle('hidden'); } };
