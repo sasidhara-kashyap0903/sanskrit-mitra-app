@@ -25,6 +25,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- JSZip for PPTX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- jsPDF and html2canvas for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .font-devanagari { font-family: 'Noto Sans Devanagari', sans-serif; }
@@ -1883,36 +1886,68 @@
                 });
             };
 
-            const exportChat = () => {
+            const exportChat = async () => {
                 if (!activeChatId || messages.length === 0) {
-                    console.log("No active chat to export.");
+                    alert("No active chat to export.");
                     return;
                 }
 
-                let chatContent = `Sanskrit Mitra Chat\nExported on: ${new Date().toLocaleString()}\n\n---\n\n`;
-                messages.forEach(msg => {
-                    const prefix = msg.sender === 'user' ? 'User' : 'Mitra';
-                    chatContent += `${prefix}: ${msg.text}\n`;
-                    if (msg.translation) {
-                        chatContent += `Translation: ${msg.translation}\n`;
-                    }
-                    if (msg.imageURL) {
-                        chatContent += `[Image was generated with prompt: "${msg.text}"]\n`;
-                    }
-                    chatContent += `\n`;
-                });
-
-                const blob = new Blob([chatContent], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
                 const chatInfo = allChatsCache.find(c => c.id === activeChatId);
                 const chatTitle = chatInfo?.title || `chat-${activeChatId.substring(0, 5)}`;
-                link.download = `sanskrit-mitra-${chatTitle.replace(/[\s\W]+/g, '_')}.txt`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+                const filename = `sanskrit-mitra-${chatTitle.replace(/[\s\W]+/g, '_')}.pdf`;
+
+                const messagesContainer = document.getElementById('messages-container');
+                const { jsPDF } = window.jspdf;
+
+                // Add a temporary loader/message
+                const originalContent = exportChatBtn.innerHTML;
+                exportChatBtn.disabled = true;
+                exportChatBtn.innerHTML = `
+                    <div class="w-4 h-4 border-2 border-gray-400 border-t-white rounded-full animate-spin"></div>
+                    <span class="ml-2">Exporting PDF...</span>
+                `;
+
+                try {
+                    const canvas = await html2canvas(messagesContainer, {
+                        scale: 2, // Higher scale for better quality
+                        useCORS: true,
+                        backgroundColor: document.documentElement.classList.contains('light') ? '#f9fafb' : '#111827'
+                    });
+
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'pt',
+                        format: 'a4'
+                    });
+
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    
+                    let heightLeft = pdfHeight;
+                    let position = 0;
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pageHeight;
+
+                    while (heightLeft > 0) {
+                        position -= pageHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                        heightLeft -= pageHeight;
+                    }
+
+                    pdf.save(filename);
+                } catch (error) {
+                    console.error("Error exporting chat to PDF:", error);
+                    alert("Sorry, an error occurred while exporting the chat.");
+                } finally {
+                    // Restore button
+                    exportChatBtn.disabled = false;
+                    exportChatBtn.innerHTML = originalContent;
+                }
             };
 
             const addMessageToDOM = (message) => {
