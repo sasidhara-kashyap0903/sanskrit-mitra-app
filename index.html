@@ -942,8 +942,6 @@
                 micBtn.style.display = 'none';
             }
             
-            const initialMessage = { id: Date.now(), text: "नमस्ते! अहं संस्कृतमित्रम्।", sender: 'bot' };
-            
             // --- Subhashita Data ---
             const subhashitas = [
                 { verse: "अयं निजः परो वेति गणना लघुचेतसाम् । उदारचरितानां तु वसुधैव कुटुम्बकम् ॥", translation: "This is mine, that is his, say the small-minded. For the magnanimous, the entire world is a family.", explanation: "This verse from the Maha Upanishad teaches about universal brotherhood and the importance of having a broad perspective." },
@@ -1656,6 +1654,24 @@
             };
 
             const createNewChat = async (initialPrompt = null) => {
+                if (isIncognitoMode) {
+                    // In incognito mode, "new chat" just clears the current temporary chat.
+                    messages = [{
+                        id: Date.now(),
+                        sender: 'bot',
+                        text: "**Incognito Mode Activated**\n\nYour conversation here will not be saved to your chat history. You can choose to save it as a new chat when you exit.",
+                        translation: "गुप्त मोड सक्रिय हो गया है। यहां आपकी बातचीत आपके चैट इतिहास में सहेजी नहीं जाएगी। बाहर निकलने पर आप इसे एक नई चैट के रूप में सहेजना चुन सकते हैं।"
+                    }];
+                    if (initialPrompt) {
+                        // A prompt can be passed for e.g. a practice session
+                        messages.push({ id: Date.now() + 1, text: initialPrompt, sender: 'user' });
+                        getBotResponse();
+                    }
+                    renderMessages();
+                    toggleHistorySidebar(false);
+                    return;
+                }
+
                 const chatsColRef = getChatsColRef();
                 try {
                     let initialMessages = [];
@@ -1676,7 +1692,8 @@
                             sender: 'bot',
                             text: `**द्यतनस्य सुभाषितम्:**\n\n*${subhashita.verse}*\n\n**अर्थः:** ${subhashita.translation}\n\n**विवरणम्:** ${subhashita.explanation}`
                         };
-                        initialMessages.push(subhashitaMessage, initialMessage);
+                        const welcomeMessage = { id: Date.now() + 1, text: "नमस्ते! अहं संस्कृतमित्रम्।", sender: 'bot' };
+                        initialMessages.push(subhashitaMessage, welcomeMessage);
                     }
 
                     const newChatDoc = await window.firebase.addDoc(chatsColRef, {
@@ -3810,8 +3827,13 @@
                 messages = []; // Clear incognito messages
                 bookmarkedMessageIds.clear();
 
-                // This will trigger the onSnapshot listener which calls listenForActiveChat
+                // Persist the active chat ID, especially if a new one was created from saving.
+                // We don't rely on the onSnapshot listener from this, as it may not fire if the
+                // activeChatId in Firestore is the same as the one we are setting.
                 await window.firebase.updateDoc(getUserDocRef(), { activeChatId: activeChatId });
+                // Manually re-trigger the listener for the restored chat to refresh the view.
+                listenForActiveChat(activeChatId);
+                renderChatHistoryList(searchChatsInput.value); // Re-render history to update active highlight
             };
 
             if (incognitoChatBtn) {
