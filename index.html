@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -227,6 +228,37 @@
         .light #bookmarks-modal .bg-gray-800, .light #bookmarks-modal .bg-gray-700\/50 { background-color: #ffffff; }
         .light #tools-menu-dropdown button { color: #4b5563; }
         .light #tools-menu-dropdown button:hover { background-color: #f3f4f6; }
+    </style>
+    <style>
+        /* Flashcard Styles */
+        .flashcard-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard-container.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .flashcard-front { background-color: #4a5568; /* gray-600 */ }
+        .flashcard-back { background-color: #2d3748; /* gray-700 */ transform: rotateY(180deg); }
+        .light .flashcard-front { background-color: #e2e8f0; /* gray-200 */ }
+        .light .flashcard-back { background-color: #edf2f7; /* gray-100 */ }
     </style>
     <style>
         /* --- Incognito Mode Enhancements --- */
@@ -747,6 +779,42 @@
                 </div>
             </div>
         </div>
+
+        <!-- Flashcards Modal -->
+        <div id="flashcards-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                    <h3 id="flashcards-modal-title" class="text-xl font-bold text-cyan-400">Flashcards</h3>
+                    <button id="flashcards-modal-close-btn" class="p-1 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div id="flashcards-modal-content" class="text-gray-300 flex-grow flex items-center justify-center" style="perspective: 1000px;">
+                    <!-- Flashcard content will be injected here -->
+                </div>
+                <div id="flashcards-modal-footer" class="mt-6 flex-shrink-0 flex justify-between items-center">
+                    <!-- Navigation controls will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Guide Modal -->
+        <div id="study-guide-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                    <h3 id="study-guide-modal-title" class="text-xl font-bold text-cyan-400">Study Guide</h3>
+                    <button id="study-guide-modal-close-btn" class="p-1 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div id="study-guide-modal-content" class="text-gray-300 space-y-4 overflow-y-auto custom-scrollbar flex-grow">
+                    <p class="text-center text-gray-400">Study Guide for this module is coming soon!</p>
+                </div>
+                <div class="mt-6 flex-shrink-0 text-right">
+                    <button class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500" onclick="document.getElementById('study-guide-modal').classList.add('hidden')">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
     <audio id="audio-player" class="hidden"></audio>
     <script>
@@ -858,6 +926,14 @@
             const bookmarksModal = document.getElementById('bookmarks-modal');
             const bookmarksModalCloseBtn = document.getElementById('bookmarks-modal-close-btn');
             const bookmarksModalList = document.getElementById('bookmarks-modal-list');
+            const flashcardsModal = document.getElementById('flashcards-modal');
+            const flashcardsModalTitle = document.getElementById('flashcards-modal-title');
+            const flashcardsModalContent = document.getElementById('flashcards-modal-content');
+            const flashcardsModalCloseBtn = document.getElementById('flashcards-modal-close-btn');
+            const studyGuideModal = document.getElementById('study-guide-modal');
+            const studyGuideModalTitle = document.getElementById('study-guide-modal-title');
+            const studyGuideModalContent = document.getElementById('study-guide-modal-content');
+            const studyGuideModalCloseBtn = document.getElementById('study-guide-modal-close-btn');
             const taskNotificationBadge = document.getElementById('task-notification-badge');
             const incognitoChatBtn = document.getElementById('incognito-chat-btn');
 
@@ -881,6 +957,9 @@
             let currentQuiz = {};
             let activeCourseId = 'course1';
             
+            let currentFlashcards = [];
+            let currentFlashcardIndex = 0;
+
             // --- Firebase State ---
             let db, auth, userId, storage;
             let unsubscribeUserDoc = () => {};
@@ -3062,9 +3141,11 @@
                             </div>
                             <p class="text-xs text-right text-gray-500 mt-1">${completedLessons} / ${totalLessons} Lessons</p>
                         </div>
-                        <div class="mt-6 flex gap-2">
-                            <button class="start-lesson-btn flex-1 px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition-colors" data-module-id="${moduleId}">Start Lesson</button>
-                            <button class="start-quiz-btn flex-1 px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition-colors" data-module-id="${moduleId}">Take Quiz</button>
+                        <div class="mt-6 grid grid-cols-2 gap-2">
+                            <button class="start-lesson-btn px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition-colors" data-module-id="${moduleId}">Start Lesson</button>
+                            <button class="start-quiz-btn px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition-colors" data-module-id="${moduleId}">Take Quiz</button>
+                            <button class="open-flashcards-btn px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-500 transition-colors" data-module-id="${moduleId}">Flashcards</button>
+                            <button class="open-study-guide-btn px-4 py-2 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-500 transition-colors" data-module-id="${moduleId}">Study Guide</button>
                         </div>
                     `;
                     modulesGrid.appendChild(card);
@@ -3078,6 +3159,12 @@
                 } else if (e.target.matches('.start-quiz-btn, .start-quiz-btn *')) {
                     const moduleId = e.target.closest('.start-quiz-btn').dataset.moduleId;
                     openQuizSetupModal(moduleId);
+                } else if (e.target.matches('.open-flashcards-btn, .open-flashcards-btn *')) {
+                    const moduleId = e.target.closest('.open-flashcards-btn').dataset.moduleId;
+                    openFlashcardsModal(moduleId);
+                } else if (e.target.matches('.open-study-guide-btn, .open-study-guide-btn *')) {
+                    const moduleId = e.target.closest('.open-study-guide-btn').dataset.moduleId;
+                    openStudyGuideModal(moduleId);
                 }
             });
 
@@ -3651,7 +3738,167 @@
             });
 
             if(lessonSelectionCloseBtn) lessonSelectionCloseBtn.addEventListener('click', () => lessonSelectionModal.classList.add('hidden'));
+
+            const generateFlashcards = async (moduleId) => {
+                const module = modules[moduleId];
+                const lessonNames = module.lessons.map(l => l.name).join(', ');
+                const prompt = `Generate a set of 10 flashcards for the Sanskrit grammar module: "${module.name}". The flashcards should cover key concepts from these lessons: ${lessonNames}. For each flashcard, provide a "term" (a Sanskrit word, concept, or short phrase) and a "definition" (a concise explanation in English).`;
+
+                const responseSchema = {
+                    type: "OBJECT",
+                    properties: {
+                        term: { type: "STRING", description: "The term, concept, or word for the front of the flashcard." },
+                        definition: { type: "STRING", description: "The definition or explanation for the back of the flashcard." }
+                    },
+                    required: ["term", "definition"]
+                };
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: responseSchema
+                        }
+                    }
+                };
+
+                try {
+                    const resultJson = await callGeminiAPI(payload);
+                    const parsedResult = JSON.parse(resultJson);
+                    if (Array.isArray(parsedResult)) {
+                        return parsedResult;
+                    } else if (typeof parsedResult === 'object' && parsedResult !== null) {
+                        const key = Object.keys(parsedResult)[0];
+                        if (Array.isArray(parsedResult[key])) {
+                            return parsedResult[key];
+                        }
+                    }
+                    console.error("Unexpected JSON structure for flashcards:", parsedResult);
+                    return null;
+                } catch (error) {
+                    console.error("Error generating or parsing flashcards:", error);
+                    return null;
+                }
+            };
+
+            const renderCurrentFlashcard = () => {
+                const flashcardContent = document.getElementById('flashcards-modal-content');
+                const flashcardFooter = document.getElementById('flashcards-modal-footer');
+
+                if (currentFlashcards.length === 0) {
+                    flashcardContent.innerHTML = `<p class="text-center text-gray-400">Could not load flashcards.</p>`;
+                    flashcardFooter.innerHTML = `<div class="w-full text-right"><button class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500" onclick="document.getElementById('flashcards-modal').classList.add('hidden')">Close</button></div>`;
+                    return;
+                }
+
+                const card = currentFlashcards[currentFlashcardIndex];
+                flashcardContent.innerHTML = `
+                    <div class="flashcard-container cursor-pointer" id="flashcard-flipper">
+                        <div class="flashcard-face flashcard-front">
+                            <span class="text-2xl font-devanagari font-bold">${card.term}</span>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <p>${card.definition}</p>
+                        </div>
+                    </div>
+                `;
+
+                flashcardFooter.innerHTML = `
+                    <button id="prev-card-btn" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed" ${currentFlashcardIndex === 0 ? 'disabled' : ''}>Previous</button>
+                    <span class="text-gray-400">${currentFlashcardIndex + 1} / ${currentFlashcards.length}</span>
+                    <button id="next-card-btn" class="px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed" ${currentFlashcardIndex === currentFlashcards.length - 1 ? 'disabled' : ''}>Next</button>
+                `;
+            };
+
+            const openFlashcardsModal = async (moduleId) => {
+                const module = modules[moduleId];
+                flashcardsModalTitle.textContent = `${module.name} Flashcards`;
+                const flashcardContent = document.getElementById('flashcards-modal-content');
+                const flashcardFooter = document.getElementById('flashcards-modal-footer');
+                
+                flashcardContent.innerHTML = '<div class="text-center p-8">Generating flashcards... <div class="w-8 h-8 border-4 border-gray-500 border-t-cyan-500 rounded-full animate-spin mx-auto mt-4"></div></div>';
+                flashcardFooter.innerHTML = '';
+                flashcardsModal.classList.remove('hidden');
+
+                const flashcards = await generateFlashcards(moduleId);
+
+                if (flashcards && flashcards.length > 0) {
+                    currentFlashcards = flashcards;
+                    currentFlashcardIndex = 0;
+                    renderCurrentFlashcard();
+                } else {
+                    flashcardContent.innerHTML = `<p class="text-center text-gray-400">Sorry, we couldn't generate flashcards for this module at the moment. Please try again later.</p>`;
+                    flashcardFooter.innerHTML = `<div class="w-full text-right"><button class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500" onclick="document.getElementById('flashcards-modal').classList.add('hidden')">Close</button></div>`;
+                }
+            };
+
+            flashcardsModal.addEventListener('click', (e) => {
+                const flipper = e.target.closest('#flashcard-flipper');
+                if (flipper) {
+                    flipper.classList.toggle('is-flipped');
+                    return;
+                }
+                
+                const prevBtn = e.target.closest('#prev-card-btn');
+                if (prevBtn) {
+                    if (currentFlashcardIndex > 0) {
+                        currentFlashcardIndex--;
+                        renderCurrentFlashcard();
+                    }
+                    return;
+                }
+
+                const nextBtn = e.target.closest('#next-card-btn');
+                if (nextBtn) {
+                    if (currentFlashcardIndex < currentFlashcards.length - 1) {
+                        currentFlashcardIndex++;
+                        renderCurrentFlashcard();
+                    }
+                    return;
+                }
+            });
+
+            if (flashcardsModalCloseBtn) flashcardsModalCloseBtn.addEventListener('click', () => flashcardsModal.classList.add('hidden'));
+
+            const generateStudyGuide = async (moduleId) => {
+                const module = modules[moduleId];
+                const lessonNames = module.lessons.map(l => l.name).join(', ');
+                const prompt = `Create a concise yet comprehensive study guide for the Sanskrit grammar module: "${module.name}". 
+                The guide should cover the key concepts from the following lessons: ${lessonNames}. 
+                Structure the guide with clear headings for each major topic. Use bullet points for key rules and provide simple examples with translations where appropriate. 
+                The goal is to give a student a solid overview for review. Format the response using Markdown with headings (e.g., ## Heading) and bullet points (e.g., - Point).`;
+
+                try {
+                    const response = await callGeminiAPI({ contents: [{ role: 'user', parts: [{ text: prompt }] }] });
+                    return response || "Could not generate study guide at this time.";
+                } catch (error) {
+                    console.error("Error generating study guide:", error);
+                    return "An error occurred while generating the study guide.";
+                }
+            };
+
+            const openStudyGuideModal = async (moduleId) => {
+                const module = modules[moduleId];
+                studyGuideModalTitle.textContent = `${module.name} Study Guide`;
+                studyGuideModalContent.innerHTML = '<div class="text-center p-8">Generating your study guide... <div class="w-8 h-8 border-4 border-gray-500 border-t-cyan-500 rounded-full animate-spin mx-auto mt-4"></div></div>';
+                studyGuideModal.classList.remove('hidden');
+
+                const guideContent = await generateStudyGuide(moduleId);
+                const formattedContent = guideContent
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400">$1</strong>')
+                    .replace(/^## (.*$)/gim, '<h3 class="text-xl font-bold text-cyan-400 mt-4 mb-2">$1</h3>')
+                    .replace(/^### (.*$)/gim, '<h4 class="text-lg font-semibold mt-3 mb-1">$1</h4>')
+                    .replace(/^\s*[-*] (.*$)/gim, '<li>$1</li>')
+                    .replace(/((?:<li>.*?<\/li>\s*)+)/gs, '<ul class="list-disc pl-5 space-y-1">$&</ul>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/<br>\s*<ul>/g, '<ul>').replace(/<\/ul>\s*<br>/g, '</ul>');
+                studyGuideModalContent.innerHTML = formattedContent;
+            };
             
+            if (studyGuideModalCloseBtn) studyGuideModalCloseBtn.addEventListener('click', () => studyGuideModal.classList.add('hidden'));
+
             // --- Achievements Logic ---
             const renderAchievements = () => {
                 achievementsList.innerHTML = '';
@@ -3850,5 +4097,4 @@
     </script>
 
 </body>
-</html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
