@@ -2715,7 +2715,7 @@
             });
 
             // --- Task Scheduler & Alarms ---
-            const populateTimezones = () => {
+            const populateTimezonesForElement = (selectElement, selectedTimezone) => {
                 const timezones = [
                     'UTC', 'GMT', 'Europe/London', 'Europe/Paris', 'Europe/Berlin',
                     'Africa/Cairo', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Singapore',
@@ -2723,10 +2723,18 @@
                     'America/Denver', 'America/Los_Angeles', 'America/Sao_Paulo'
                 ];
                 const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                if (!timezones.includes(userTimezone)) {
+                if (selectedTimezone && !timezones.includes(selectedTimezone)) {
+                    timezones.unshift(selectedTimezone);
+                }
+                if (userTimezone && !timezones.includes(userTimezone)) {
                     timezones.unshift(userTimezone);
                 }
-                taskTimezone.innerHTML = timezones.map(tz => `<option value="${tz}" ${tz === userTimezone ? 'selected' : ''}>${tz}</option>`).join('');
+                const finalSelected = selectedTimezone || userTimezone;
+                selectElement.innerHTML = timezones.map(tz => `<option value="${tz}" ${tz === finalSelected ? 'selected' : ''}>${tz}</option>`).join('');
+            };
+
+            const populateTimezones = () => {
+                populateTimezonesForElement(taskTimezone);
             };
 
             const saveTask = async () => {
@@ -2798,18 +2806,109 @@
                 tasks.forEach(task => {
                     const taskDate = task.taskDateTime.toDate();
                     const taskItem = document.createElement('div');
-                    taskItem.className = 'p-3 bg-gray-700/50 rounded-lg flex justify-between items-center';
+                    taskItem.className = 'task-item-container p-3 bg-gray-700/50 rounded-lg flex justify-between items-center';
+                    taskItem.dataset.taskId = task.id;
                     taskItem.innerHTML = `
-                        <div>
+                        <div class="flex-grow task-content">
                             <p class="text-white">${task.description}</p>
                             <p class="text-xs text-gray-400">${taskDate.toLocaleString()}</p>
                         </div>
-                        <button class="delete-task-btn p-2 text-red-500 hover:bg-red-500/10 rounded-full" data-task-id="${task.id}" title="Delete Task">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                        </button>
+                        <div class="flex-shrink-0 flex items-center gap-1 task-actions">
+                            <button class="edit-task-btn p-2 text-cyan-400 hover:bg-cyan-500/10 rounded-full" title="Edit Task"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
+                            <button class="delete-task-btn p-2 text-red-500 hover:bg-red-500/10 rounded-full" title="Delete Task"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+                        </div>
                     `;
                     taskViewContent.appendChild(taskItem);
                 });
+            };
+
+            const getTask = async (taskId) => {
+                if (!userId) return null;
+                try {
+                    const taskRef = window.firebase.doc(getTasksColRef(), taskId);
+                    const docSnap = await window.firebase.getDoc(taskRef);
+                    if (docSnap.exists()) {
+                        return { id: docSnap.id, ...docSnap.data() };
+                    } else {
+                        console.log("No such document!");
+                        return null;
+                    }
+                } catch (error) {
+                    console.error("Error getting task:", error);
+                    return null;
+                }
+            };
+
+            const updateTask = async (taskId, dataToUpdate) => {
+                if (!userId) return;
+                try {
+                    const taskRef = window.firebase.doc(getTasksColRef(), taskId);
+                    await window.firebase.updateDoc(taskRef, dataToUpdate);
+                } catch (error) {
+                    console.error("Error updating task:", error);
+                    alert("Failed to update task.");
+                }
+            };
+
+            const saveTaskEdit = async (taskId) => {
+                const taskItem = taskViewContent.querySelector(`.task-item-container[data-task-id="${taskId}"]`);
+                if (!taskItem) return;
+
+                const newDescription = taskItem.querySelector('.edit-task-input').value.trim();
+                const newDate = taskItem.querySelector('.edit-task-date').value;
+                const newTime = taskItem.querySelector('.edit-task-time').value;
+                const newTimezone = taskItem.querySelector('.edit-task-timezone').value;
+
+                if (newDescription && newDate && newTime) {
+                    const newDateTime = new Date(`${newDate}T${newTime}`);
+                    const newTimestamp = window.firebase.Timestamp.fromDate(newDateTime);
+
+                    const dataToUpdate = {
+                        description: newDescription,
+                        taskDateTime: newTimestamp,
+                        timeZone: newTimezone
+                    };
+
+                    await updateTask(taskId, dataToUpdate);
+                    await renderAllTasks(); // Re-render to show the updated, non-edit view.
+                } else {
+                    alert("Please fill out all fields.");
+                }
+            };
+
+            const startEditTask = async (taskId) => {
+                // To avoid issues with multiple open editors, just re-render to close any others.
+                const otherEditForm = taskViewContent.querySelector('.edit-form-container');
+                if (otherEditForm) {
+                    await renderAllTasks();
+                }
+
+                const taskItem = taskViewContent.querySelector(`.task-item-container[data-task-id="${taskId}"]`);
+                if (!taskItem) return;
+
+                const task = await getTask(taskId);
+                if (!task) {
+                    alert("Could not find task to edit.");
+                    return;
+                }
+
+                const taskDate = task.taskDateTime.toDate();
+                const dateString = taskDate.toISOString().split('T')[0]; // YYYY-MM-DD
+                const timeString = ('0' + taskDate.getHours()).slice(-2) + ':' + ('0' + taskDate.getMinutes()).slice(-2); // HH:MM
+
+                taskItem.classList.remove('flex', 'justify-between', 'items-center');
+                taskItem.innerHTML = `
+                    <div class="w-full space-y-4 edit-form-container">
+                        <div><label for="edit-task-description-${taskId}" class="block text-sm font-medium text-gray-300 mb-1">Task Description</label><textarea id="edit-task-description-${taskId}" rows="2" class="edit-task-input w-full bg-gray-600 border border-gray-500 rounded-lg p-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">${task.description}</textarea></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="edit-task-date-${taskId}" class="block text-sm font-medium text-gray-300 mb-1">Date</label><input type="date" id="edit-task-date-${taskId}" value="${dateString}" class="edit-task-date w-full bg-gray-600 border border-gray-500 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"></div><div><label for="edit-task-time-${taskId}" class="block text-sm font-medium text-gray-300 mb-1">Time</label><input type="time" id="edit-task-time-${taskId}" value="${timeString}" class="edit-task-time w-full bg-gray-600 border border-gray-500 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"></div></div>
+                        <div><label for="edit-task-timezone-${taskId}" class="block text-sm font-medium text-gray-300 mb-1">Time Zone</label><select id="edit-task-timezone-${taskId}" class="edit-task-timezone w-full bg-gray-600 border border-gray-500 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"></select></div>
+                        <div class="mt-4 flex justify-end gap-2"><button class="cancel-task-edit-btn px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-400 transition-colors">Cancel</button><button class="save-task-edit-btn px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition-colors">Save Changes</button></div>
+                    </div>
+                `;
+                
+                const timezoneSelect = taskItem.querySelector(`#edit-task-timezone-${taskId}`);
+                populateTimezonesForElement(timezoneSelect, task.timeZone);
+                taskItem.querySelector('textarea').focus();
             };
 
             const deleteTask = async (taskId) => {
@@ -2854,7 +2953,22 @@
                     renderAllTasks();
                 });
             }
-            if (taskViewContent) taskViewContent.addEventListener('click', e => { const deleteBtn = e.target.closest('.delete-task-btn'); if (deleteBtn) deleteTask(deleteBtn.dataset.taskId); });
+            if (taskViewContent) taskViewContent.addEventListener('click', e => {
+                const taskItemContainer = e.target.closest('.task-item-container');
+                if (!taskItemContainer) return;
+
+                const taskId = taskItemContainer.dataset.taskId;
+
+                if (e.target.closest('.delete-task-btn')) {
+                    deleteTask(taskId);
+                } else if (e.target.closest('.edit-task-btn')) {
+                    startEditTask(taskId);
+                } else if (e.target.closest('.save-task-edit-btn')) {
+                    saveTaskEdit(taskId);
+                } else if (e.target.closest('.cancel-task-edit-btn')) {
+                    renderAllTasks(); // The easiest way to cancel is to just re-render.
+                }
+            });
             if (taskModalCloseBtn) taskModalCloseBtn.addEventListener('click', () => taskSchedulerModal.classList.add('hidden'));
             if (saveTaskBtn) saveTaskBtn.addEventListener('click', saveTask);
             if (guidedLearningBtn) {
