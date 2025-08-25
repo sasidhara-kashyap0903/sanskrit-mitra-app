@@ -564,14 +564,28 @@
 
         <!-- Task Scheduler Modal -->
         <div id="task-scheduler-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
-            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-cyan-400">Schedule a New Task</h3>
+            <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                    <h3 id="task-modal-title" class="text-xl font-bold text-cyan-400">Task Manager</h3>
                     <button id="task-modal-close-btn" class="p-1 rounded-full hover:bg-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                <div class="space-y-4">
+                
+                <!-- Tabs -->
+                <div class="border-b border-gray-700 mb-4 flex-shrink-0">
+                    <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                        <button id="task-tab-new" class="task-tab border-cyan-500 text-cyan-400 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            New Task
+                        </button>
+                        <button id="task-tab-view" class="task-tab border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-500 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            View Tasks
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- New Task Form -->
+                <div id="task-new-content" class="space-y-4">
                     <div>
                         <label for="task-description" class="block text-sm font-medium text-gray-300 mb-1">Task Description (कार्यविवरणम्)</label>
                         <textarea id="task-description" rows="3" placeholder="e.g., Revise Sandhi rules..." class="task-input w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
@@ -592,11 +606,16 @@
                             <!-- Timezones will be populated here -->
                         </select>
                     </div>
+                    <div class="mt-6 text-right">
+                        <button id="save-task-btn" class="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:bg-cyan-500 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+                            Save Task
+                        </button>
+                    </div>
                 </div>
-                <div class="mt-6 text-right">
-                    <button id="save-task-btn" class="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:bg-cyan-500 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
-                        Save Task
-                    </button>
+
+                <!-- View Tasks List -->
+                <div id="task-view-content" class="hidden flex-grow overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                    <!-- Task list will be injected here -->
                 </div>
             </div>
         </div>
@@ -789,6 +808,11 @@
             const deepThinkBtn = document.getElementById('deep-think-btn');
             const taskSchedulerModal = document.getElementById('task-scheduler-modal');
             const taskModalCloseBtn = document.getElementById('task-modal-close-btn');
+            const taskModalTitle = document.getElementById('task-modal-title');
+            const taskTabNew = document.getElementById('task-tab-new');
+            const taskTabView = document.getElementById('task-tab-view');
+            const taskNewContent = document.getElementById('task-new-content');
+            const taskViewContent = document.getElementById('task-view-content');
             const saveTaskBtn = document.getElementById('save-task-btn');
             const taskDescription = document.getElementById('task-description');
             const taskDate = document.getElementById('task-date');
@@ -834,6 +858,7 @@
             const bookmarksModal = document.getElementById('bookmarks-modal');
             const bookmarksModalCloseBtn = document.getElementById('bookmarks-modal-close-btn');
             const bookmarksModalList = document.getElementById('bookmarks-modal-list');
+            const taskNotificationBadge = document.getElementById('task-notification-badge');
             const incognitoChatBtn = document.getElementById('incognito-chat-btn');
 
             // --- State Management ---
@@ -861,6 +886,7 @@
             let unsubscribeUserDoc = () => {};
             let unsubscribeChatDoc = () => {};
             let unsubscribeChatsCol = () => {};
+            let unsubscribeTasks = () => {};
             let unsubscribeProgress = () => {};
 
             // --- Speech Recognition Setup ---
@@ -1531,6 +1557,52 @@
                     messages = [];
                     renderMessages();
                 }
+            };
+
+            const updateTaskNotification = async () => {
+                if (!userId || !taskNotificationBadge) {
+                    taskNotificationBadge?.classList.add('hidden');
+                    return;
+                }
+
+                const now = new Date();
+                const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+                const startTimestamp = window.firebase.Timestamp.fromDate(startOfDay);
+                const endTimestamp = window.firebase.Timestamp.fromDate(endOfDay);
+
+                const tasksColRef = getTasksColRef();
+                const q = window.firebase.query(tasksColRef, 
+                    window.firebase.where('taskDateTime', '>=', startTimestamp),
+                    window.firebase.where('taskDateTime', '<=', endTimestamp),
+                    window.firebase.where('isCompleted', '==', false)
+                );
+
+                try {
+                    const querySnapshot = await window.firebase.getDocs(q);
+                    const pendingTasksCount = querySnapshot.size;
+
+                    if (pendingTasksCount > 0) {
+                        taskNotificationBadge.textContent = pendingTasksCount;
+                        taskNotificationBadge.classList.remove('hidden');
+                        taskNotificationBadge.classList.add('task-badge-animate');
+                        // Remove animation class after it plays to allow re-triggering
+                        setTimeout(() => taskNotificationBadge.classList.remove('task-badge-animate'), 300);
+                    } else {
+                        taskNotificationBadge.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error("Error updating task notification:", error);
+                    taskNotificationBadge.classList.add('hidden');
+                }
+            };
+
+            const listenForTasks = () => {
+                unsubscribeTasks();
+                if (!userId) return;
+                const tasksColRef = getTasksColRef();
+                unsubscribeTasks = window.firebase.onSnapshot(tasksColRef, () => updateTaskNotification());
             };
 
             const getTodaysTasks = async () => {
@@ -2432,6 +2504,7 @@
                                         listenForActiveChat(activeChatId);
                                         listenForChatHistoryList();
                                         initDashboard();
+                                        listenForTasks();
                                     } else {
                                         window.firebase.setDoc(getUserDocRef(), { uid: userId, selectedVoice: 'Achird', theme: 'dark', activeCourseId: 'course1', recognitionLang: 'en-US' });
                                         activeChatId = null;
@@ -2439,6 +2512,7 @@
                                         listenForChatHistoryList();
                                         initDashboard();
                                     }
+                                    updateTaskNotification();
                                 });
                                 
                                 unsubscribeProgress = window.firebase.onSnapshot(getProgressDocRef(), (doc) => {
@@ -2470,6 +2544,7 @@
                                 unsubscribeUserDoc();
                                 unsubscribeChatDoc();
                                 unsubscribeChatsCol();
+                                unsubscribeTasks();
                                 unsubscribeProgress();
                             }
                         });
@@ -2695,6 +2770,62 @@
                 }
             };
             
+            const getAllTasks = async () => {
+                if (!userId) return [];
+                const tasksColRef = getTasksColRef();
+                const q = window.firebase.query(tasksColRef, window.firebase.orderBy("taskDateTime", "asc"));
+                try {
+                    const querySnapshot = await window.firebase.getDocs(q);
+                    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                } catch (error) {
+                    console.error("Error fetching all tasks:", error);
+                    return [];
+                }
+            };
+
+            const renderAllTasks = async () => {
+                if (!taskViewContent) return;
+
+                taskViewContent.innerHTML = '<div class="text-center p-4 text-gray-400">Loading tasks...</div>';
+                const tasks = await getAllTasks();
+
+                if (tasks.length === 0) {
+                    taskViewContent.innerHTML = '<div class="text-center p-4 text-gray-400">No scheduled tasks.</div>';
+                    return;
+                }
+
+                taskViewContent.innerHTML = '';
+                tasks.forEach(task => {
+                    const taskDate = task.taskDateTime.toDate();
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'p-3 bg-gray-700/50 rounded-lg flex justify-between items-center';
+                    taskItem.innerHTML = `
+                        <div>
+                            <p class="text-white">${task.description}</p>
+                            <p class="text-xs text-gray-400">${taskDate.toLocaleString()}</p>
+                        </div>
+                        <button class="delete-task-btn p-2 text-red-500 hover:bg-red-500/10 rounded-full" data-task-id="${task.id}" title="Delete Task">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                    `;
+                    taskViewContent.appendChild(taskItem);
+                });
+            };
+
+            const deleteTask = async (taskId) => {
+                if (!userId) return;
+                if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                    try {
+                        const taskRef = window.firebase.doc(getTasksColRef(), taskId);
+                        await window.firebase.deleteDoc(taskRef);
+                        await renderAllTasks(); // Re-render the list
+                    } catch (error) {
+                        console.error("Error deleting task:", error);
+                        alert("Failed to delete task.");
+                    }
+                }
+            };
+
             if (scheduleTaskBtn) scheduleTaskBtn.addEventListener('click', () => {
                 populateTimezones();
                 taskDescription.value = '';
@@ -2702,6 +2833,28 @@
                 taskTime.value = '';
                 taskSchedulerModal.classList.remove('hidden');
             });
+            if (taskTabNew) {
+                taskTabNew.addEventListener('click', () => {
+                    taskTabNew.classList.add('border-cyan-500', 'text-cyan-400');
+                    taskTabNew.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-300', 'hover:border-gray-500');
+                    taskTabView.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-300', 'hover:border-gray-500');
+                    taskTabView.classList.remove('border-cyan-500', 'text-cyan-400');
+                    taskNewContent.classList.remove('hidden');
+                    taskViewContent.classList.add('hidden');
+                });
+            }
+            if (taskTabView) {
+                taskTabView.addEventListener('click', () => {
+                    taskTabView.classList.add('border-cyan-500', 'text-cyan-400');
+                    taskTabView.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-300', 'hover:border-gray-500');
+                    taskTabNew.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-300', 'hover:border-gray-500');
+                    taskTabNew.classList.remove('border-cyan-500', 'text-cyan-400');
+                    taskViewContent.classList.remove('hidden');
+                    taskNewContent.classList.add('hidden');
+                    renderAllTasks();
+                });
+            }
+            if (taskViewContent) taskViewContent.addEventListener('click', e => { const deleteBtn = e.target.closest('.delete-task-btn'); if (deleteBtn) deleteTask(deleteBtn.dataset.taskId); });
             if (taskModalCloseBtn) taskModalCloseBtn.addEventListener('click', () => taskSchedulerModal.classList.add('hidden'));
             if (saveTaskBtn) saveTaskBtn.addEventListener('click', saveTask);
             if (guidedLearningBtn) {
@@ -3292,7 +3445,7 @@
             });
 
             const openLessonSelectionModal = (moduleId) => {
-                lessonSelectionList.innerHTML = ''; // Clear previous content
+               lessonSelectionList.innerHTML = ''; // Clear previous content
 
                 if (moduleId) {
                     // --- Show Lessons for a specific module ---
