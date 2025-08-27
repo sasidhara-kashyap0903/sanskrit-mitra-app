@@ -24,7 +24,7 @@ const auth = getAuth(app);
 window.addEventListener('load', () => {
 
 	console.log('Window loaded.'); // Add this to confirm the load event is firing
-
+	updateUIMode();
 	const getLessonsForModule = (moduleId) => {
 		// This is a placeholder function. You'll likely fetch real lesson data here.
 		return [{
@@ -118,22 +118,25 @@ window.addEventListener('load', () => {
 				playingMessageId = null;
 				window.updateAudioIcons(); // Update icons when speech ends
 			};
-			utterance.onerror = (event) => {
-				// These errors are expected when the user clicks another button
-				// or stops audio manually. We can safely ignore them.
-				if (event.error === 'canceled' || event.error === 'interrupted') {
-					console.log(`Speech was intentionally ${event.error}.`);
-					return; 
-				}
-
-				// Log any other, unexpected errors
-				console.error('An unexpected speech synthesis error occurred:', event);
-				playingMessageId = null;
-				window.updateAudioIcons();
-			};
+			                utterance.onerror = (event) => {
+				                    // These errors are expected when the user clicks another button
+				                    // or stops audio manually. We can safely ignore them.
+				                    if (event.error === 'canceled' || event.error === 'interrupted') {
+				                        console.log(`Speech was intentionally ${event.error}.`);
+				                        return; 
+				                    }
+				
+				                    // Log any other, unexpected errors
+				                    console.error('An unexpected speech synthesis error occurred:', event);
+				                    playingMessageId = null;
+				                    window.updateAudioIcons();
+				                };
+			// Start speech and update state
+			playingMessageId = messageId;
 			window.speechSynthesis.speak(utterance);
 		}
 	};
+
 	// Toggle mobile menu: checks if all required elements exist before adding event listeners.
 	if (showMenuButton && hideMenuButton && mobileMenu) {
 		showMenuButton.addEventListener('click', () => {
